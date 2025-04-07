@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceWatch - Data & Analytics</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    </head>
+<body>
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">SpaceWatch</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                ☰ </button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="data.html">Data Access</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <section class="data-analytics-section">
+            <h2>Data & Analytics Dashboard</h2>
+            <p class="section-intro">Explore key statistics, model performance metrics, and orbital data trends.</p>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Satellite Population</h3>
+                    <div class="metric-value" id="total-satellites">15,000+</div>
+                    <p>Tracked Objects (Satellites & Debris)</p>
+                    <div class="placeholder-chart small-chart" id="satellite-type-chart">
+                        <p>Types Chart</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Orbit Prediction Accuracy</h3>
+                    <div class="metric-value" id="rmse-value">0.85 km</div>
+                    <p>Root Mean Square Error (RMSE)</p>
+                     <div class="placeholder-chart small-chart" id="accuracy-trend-chart">
+                        <p>Accuracy Trend</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>ML Correction Impact</h3>
+                     <div class="metric-value" id="ml-improvement">15%</div>
+                    <p>Improvement over SGP4 Baseline</p>
+                     <div class="placeholder-chart small-chart" id="ml-impact-chart">
+                        <p>ML vs SGP4</p>
+                    </div>
+                </div>
+
+                 <div class="dashboard-card">
+                    <h3>Predicted Collisions (Next 7 Days)</h3>
+                     <div class="metric-value" id="collision-count">3</div>
+                    <p>High-Risk Conjunctions</p>
+                     <div class="placeholder-chart small-chart" id="collision-risk-chart">
+                        <p>Risk Level Dist.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card large-card">
+                    <h3>Orbital Element Distribution</h3>
+                    <div class="placeholder-chart" id="orbital-elements-chart">
+                        <p>Distribution of Inclination, Eccentricity, etc.</p>
+                    </div>
+                </div>
+
+                 <div class="dashboard-card large-card">
+                    <h3>Data Source Status</h3>
+                     <p>Real-time feed status from various tracking networks.</p>
+                     <ul class="status-list">
+                        <li>Space-Track.org: <span class="status-ok">●</span> Operational</li>
+                        <li>Celestrak: <span class="status-ok">●</span> Operational</li>
+                        <li>LeoLabs: <span class="status-warning">●</span> Degraded Performance</li>
+                        <li>Internal Radar Network: <span class="status-ok">●</span> Operational</li>
+                     </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SpaceWatch. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

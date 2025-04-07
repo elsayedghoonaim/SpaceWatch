@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceWatch - Contact & API Access</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">SpaceWatch</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                ☰ </button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="data.html">Data Access</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <section class="contact-section">
+            <h2>Contact Us & API Access</h2>
+            <p class="section-intro">Get in touch with the SpaceWatch team or request access to our API.</p>
+
+            <div class="contact-grid">
+                <div class="contact-form-container content-block">
+                    <h3>Send Us a Message</h3>
+                    <form id="contact-form" action="#" method="POST">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject:</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message:</label>
+                            <textarea id="message" name="message" rows="6" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+
+                <div class="api-access-container content-block">
+                    <h3>API Access Request</h3>
+                    <p>Access real-time orbital data and prediction services programmatically. Fill out the form below to request an API key.</p>
+                    <form id="api-request-form" action="#" method="POST">
+                         <div class="form-group">
+                            <label for="api-name">Full Name / Organization:</label>
+                            <input type="text" id="api-name" name="api-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="api-email">Contact Email:</label>
+                            <input type="email" id="api-email" name="api-email" required>
+                        </div>
+                         <div class="form-group">
+                            <label for="api-use-case">Intended Use Case:</label>
+                            <textarea id="api-use-case" name="api-use-case" rows="4" required placeholder="Briefly describe how you plan to use the API..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Authentication Placeholder:</label>
+                            <p class="api-auth-info">API Key and documentation will be provided upon approval.</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Request API Access</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SpaceWatch. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

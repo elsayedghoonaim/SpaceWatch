@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SpaceWatch - Orbit Visualization</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/satellite.js/dist/satellite.min.js"></script>
+</head>
+<body id="orbit-visualization-page">
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">SpaceWatch</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                ☰ </button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="data.html">Data Access</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="canvas-container">
+        <div id="info-panel">
+            <div class="flex items-center mb-3">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                <h1 class="text-lg font-bold">SATELLITE TRACKER</h1>
+            </div>
+
+            <div class="mb-3">
+                <label for="satellite-select" class="block text-sm font-medium text-gray-400 mb-1">Select Satellite:</label>
+                <select id="satellite-select" class="satellite-selector">
+                    <option value="ISS">International Space Station (ISS)</option>
+                    <option value="HST">Hubble Space Telescope (HST)</option>
+                    <option value="GPS">GPS Satellite (Sample)</option>
+                    <option value="STARLINK">Starlink Satellite (Sample)</option>
+                </select>
+            </div>
+
+            <div class="space-y-2 text-sm mb-3">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 rounded-full bg-blue-500 mr-2 glow"></div>
+                    <span>Active Satellite</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+                    <span>Space Debris (Sample)</span>
+                </div>
+            </div>
+
+             <div class="pt-2 mt-2 border-t border-gray-700">
+                 <p class="text-xs text-gray-400">Real-time calculated position based on TLE data. Interact with the model using mouse or touch.</p>
+             </div>
+
+            <div id="stats" class="mt-3 text-xs space-y-1">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Satellite:</span>
+                    <span id="sat-name" class="text-white">ISS (ZARYA)</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Position (ECI):</span>
+                    <span id="sat-position" class="text-white">Calculating...</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Altitude:</span>
+                    <span id="sat-altitude" class="text-white">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Velocity:</span>
+                    <span id="sat-velocity" class="text-white">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Last Update:</span>
+                    <span id="last-update" class="text-white">-</span>
+                </div>
+            </div>
+
+            <div class="mt-3 flex justify-between space-x-2">
+                <button id="toggle-debris" class="px-2 py-1 spacex-button rounded text-xs flex-1">
+                    Hide Debris
+                </button>
+                <button id="toggle-labels" class="px-2 py-1 spacex-button rounded text-xs flex-1">
+                    Show Labels
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-controls">
+            <button id="reset-view" class="mobile-btn" aria-label="Reset View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 9 9 9 9 0 0 1-9 9 9 9 0 0 1-9-9z"></path><path d="M13 12a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+        </div>
+
+        <button id="toggle-info" aria-label="Toggle Information Panel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </button>
+
+        <div id="loading-screen">
+            <div class="flex mb-4">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+            <h2 class="text-xl font-bold mb-2">INITIALIZING SATELLITE TRACKER</h2>
+            <p class="text-gray-400 mb-4 text-sm">Loading satellite data and 3D environment</p>
+            <div class="w-48 h-1 bg-gray-800 rounded-full overflow-hidden">
+                <div id="loading-bar" class="h-full bg-white w-0"></div>
+            </div>
+            <p id="loading-text" class="mt-2 text-xs text-gray-400">Loading...</p>
+        </div>
+
+        <div id="tooltip" class="tooltip"></div>
+
+        <div id="satellite-label" class="satellite-label"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

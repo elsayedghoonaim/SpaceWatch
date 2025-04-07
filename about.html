@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceWatch - About & Documentation</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">SpaceWatch</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                ☰ </button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="data.html">Data Access</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <section class="about-section">
+            <h2>About SpaceWatch & Documentation</h2>
+            <p class="section-intro">Understanding the technology and purpose behind SpaceWatch.</p>
+
+            <article class="content-block">
+                <h3>Project Purpose</h3>
+                <p>SpaceWatch is a high-fidelity orbital tracking and collision avoidance system designed for satellite operators, researchers, and space agencies. Our mission is to enhance space situational awareness (SSA) by providing accurate, real-time predictions of satellite and debris trajectories, thereby mitigating collision risks and promoting safer space operations.</p>
+                <p>We utilize the standard SGP4 propagation model, significantly enhanced with proprietary machine learning algorithms trained on historical tracking data. This hybrid approach allows for improved accuracy, especially for objects in complex orbital regimes or during periods of high solar activity.</p>
+            </article>
+
+            <article class="content-block documentation">
+                <h3>Documentation</h3>
+                <details class="doc-item">
+                    <summary>SGP4 Propagation Model</summary>
+                    <div class="doc-content">
+                        <p>The Simplified General Perturbations 4 (SGP4) model is a standard analytical method used to predict the orbits of near-Earth objects. It accounts for secular and periodic variations caused by Earth's oblateness and atmospheric drag.</p>
+                        <p><strong>References:</strong> Hoots, Felix R., and Ronald L. Roehrich. "Models for Propagation of NORAD Element Sets." Spacetrack Report No. 3, USAF Project SPACE TRACK, December 1980.</p>
+                    </div>
+                </details>
+                <details class="doc-item">
+                    <summary>Machine Learning Corrections</summary>
+                     <div class="doc-content">
+                        <p>Our ML model analyzes discrepancies between SGP4 predictions and observed data (e.g., radar measurements, laser ranging) to learn systematic error patterns. It then applies corrections to future SGP4 outputs, improving prediction accuracy.</p>
+                        <p>The model architecture (e.g., LSTM, Transformer) and training data specifics are proprietary but are continuously updated based on performance monitoring.</p>
+                    </div>
+                </details>
+                 <details class="doc-item">
+                    <summary>Data Sources</summary>
+                     <div class="doc-content">
+                        <p>SpaceWatch aggregates data from multiple public and private sources, including:</p>
+                        <ul>
+                            <li>Space-Track.org (Official USSPACECOM catalog)</li>
+                            <li>Celestrak (Dr. T.S. Kelso's curated data)</li>
+                            <li>Commercial SSA providers (e.g., LeoLabs)</li>
+                            <li>Proprietary sensor networks (where applicable)</li>
+                        </ul>
+                        <p>Data is ingested, validated, and cross-referenced before being used in our models.</p>
+                    </div>
+                </details>
+                 <details class="doc-item">
+                    <summary>Collision Risk Assessment</summary>
+                     <div class="doc-content">
+                        <p>Collision probability is calculated using covariance data associated with object states. We employ methods like the Foster-Akella algorithm or Monte Carlo simulations for high-risk conjunctions.</p>
+                        <p>Alert levels (Low, Medium, High, Critical) are based on probability thresholds, miss distance, and object types.</p>
+                    </div>
+                </details>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SpaceWatch. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceWatch - Predictions & Alerts</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    </head>
+<body>
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">SpaceWatch</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                ☰ </button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="data.html">Data Access</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <section class="predictions-section">
+            <h2>Predictions & Collision Alerts</h2>
+            <p class="section-intro">Monitor potential conjunction events and visualize predicted trajectories.</p>
+
+            <div class="alerts-container">
+                <h3>Active Alerts</h3>
+                <div class="alert alert-critical">
+                    <span class="alert-icon">⚠️</span>
+                    <div class="alert-details">
+                        <strong>CRITICAL RISK:</strong> Potential collision between Satellite X (ID: 12345) and Debris Y (ID: 67890). Predicted TCA: 2025-04-06 14:30 UTC. Probability: 95%.
+                    </div>
+                    <button class="btn btn-secondary btn-small">View Details</button>
+                </div>
+                <div class="alert alert-high">
+                    <span class="alert-icon">❗</span>
+                     <div class="alert-details">
+                        <strong>High Risk:</strong> Close approach between Starlink-101 (ID: 54321) and Unknown Object (ID: 98765). Predicted Closest Approach: 1.5 km at 2025-04-07 08:00 UTC.
+                    </div>
+                     <button class="btn btn-secondary btn-small">View Details</button>
+                </div>
+                 <div class="alert alert-medium">
+                    <span class="alert-icon">🔸</span>
+                     <div class="alert-details">
+                        <strong>Medium Risk:</strong> Elevated probability of conjunction for ISS (ID: 25544) in the next 72 hours. Monitor closely.
+                    </div>
+                     <button class="btn btn-secondary btn-small">View Details</button>
+                </div>
+                 <div class="alert alert-low">
+                     <span class="alert-icon">ℹ️</span>
+                     <div class="alert-details">
+                        <strong>Low Risk:</strong> Routine close approach detected for WeatherSat-3 (ID: 11223). Closest Approach: > 10 km.
+                    </div>
+                     <button class="btn btn-secondary btn-small">View Details</button>
+                </div>
+            </div>
+
+            <div class="predictions-display">
+                <h3>Trajectory Predictions & Heatmaps</h3>
+                <div class="prediction-item">
+                    <h4>Satellite Position Prediction (Next 24h)</h4>
+                    <div class="placeholder-chart" id="position-chart">
+                        <p>Position Prediction Chart Area</p>
+                    </div>
+                </div>
+                <div class="prediction-item">
+                    <h4>Collision Risk Heatmap</h4>
+                     <div class="placeholder-chart" id="heatmap-chart">
+                        <p>Collision Risk Heatmap Area</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulation-controls">
+                <h3>Maneuver Simulation</h3>
+                <p>Simulate avoidance maneuvers and view projected outcomes (Placeholder).</p>
+                <div class="control-group form-group"> <label for="sim-satellite">Select Satellite for Simulation:</label>
+                    <select id="sim-satellite" name="sim-satellite">
+                        <option value="satellite-x">Satellite X (ID: 12345)</option>
+                        <option value="starlink-101">Starlink-101 (ID: 54321)</option>
+                        </select>
+                </div>
+                <div class="control-group form-group"> <label for="sim-delta-v">Delta-V (m/s):</label>
+                    <input type="number" id="sim-delta-v" name="sim-delta-v" value="1.0" step="0.1">
+                </div>
+                <button class="btn btn-primary">Run Simulation</button>
+                <div class="simulation-results" id="sim-results">
+                    <p>Simulation results will appear here...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SpaceWatch. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
