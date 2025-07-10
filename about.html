@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -200,64 +198,94 @@
             color: var(--secondary-color);
             margin-bottom: 1rem;
         }
-
-        /* Comparison Cards Section */
-        .comparison-cards-container {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            margin-top: 2rem;
+        
+        /* --- SLIDER STYLES START --- */
+        .performance-slider-container {
+            position: relative;
+            margin: 2rem auto;
+            width: 100%;
         }
 
-        .comparison-card {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            flex: 1;
-            min-width: 300px;
-            max-width: 360px;
-            display: flex;
-            flex-direction: column;
+        .performance-slide {
+            display: none;
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .comparison-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
-        }
-
-        .comparison-card h4 {
-            color: var(--secondary-color);
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
+            animation: fadeIn 0.7s ease-in-out;
         }
         
-        .comparison-card p {
-            font-size: 0.95rem;
-            color: var(--accent-color);
-            flex-grow: 1;
+        .performance-slide.active {
+            display: block;
         }
 
-        .visualization-container {
-            height: 180px;
+        .performance-slide img {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            border-radius: 8px;
+            margin: 0 auto 1.5rem auto;
+            background-color: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+        }
+        
+        .performance-slide h4 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .performance-slide p {
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .slider-nav-button {
+            position: absolute;
+            top: 40%;
+            transform: translateY(-50%);
+            background-color: rgba(30, 30, 30, 0.7);
+            border: 1px solid var(--border-color);
+            color: var(--secondary-color);
+            font-size: 2rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 50%;
+            z-index: 10;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 1rem 0;
-            background-color: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            overflow: hidden;
-            padding: 0.5rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
         
-        .visualization-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+        .slider-nav-button:hover {
+            background-color: rgba(0, 123, 255, 0.5);
+            transform: translateY(-50%) scale(1.05);
         }
+        
+        .slider-nav-button.prev {
+            left: -25px;
+        }
+        
+        .slider-nav-button.next {
+            right: -25px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 900px) {
+            .slider-nav-button.prev {
+                left: 10px;
+            }
+            .slider-nav-button.next {
+                right: 10px;
+            }
+        }
+        /* --- SLIDER STYLES END --- */
 
         .documentation h3 {
             margin-bottom: 1rem;
@@ -393,6 +421,10 @@
                 color: var(--secondary-color);
                 border-bottom-color: transparent;
             }
+            
+            .content-block {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -404,7 +436,7 @@
             </div>
             <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">☰</button>
             <ul>
-                <li><a href="index.html">Home</a></li>
+                <li><a href="landing.html">Home</a></li>
                 <li><a href="about.html" class="active">About</a></li>
                 <li><a href="orbit.html">Orbit Viz</a></li>
                 <li><a href="predictions.html">Predictions</a></li>
@@ -427,30 +459,28 @@
 
             <article class="content-block">
                 <h3>Model Performance Across Time Horizons</h3>
-                <div class="comparison-cards-container">
-                    <div class="comparison-card">
+                <div class="performance-slider-container">
+                    
+                    <div class="performance-slide active">
+                        <img src="media\accuracy_improvement_dark.png" alt="Bar chart comparing SGP4 and ML Model MAE for Short-Term Accuracy">
                         <h4>Short-Term Accuracy (0-24 Hours)</h4>
-                        <div class="visualization-container">
-                             <img src="media\accuracy_improvement_dark.png" alt="Bar chart comparing SGP4 and ML Model MAE">
-                        </div>
                         <p>For immediate conjunction analysis and maneuver planning, the ML model provides a critical accuracy boost over the standard SGP4, ensuring safer short-term operations.</p>
                     </div>
 
-                    <div class="comparison-card">
+                    <div class="performance-slide">
+                        <img src="media\accuracy_improvement_dark.png" alt="Bar chart comparing SGP4 and ML Model MAE for Medium-Term Accuracy">
                         <h4>Medium-Term Accuracy (1-7 Days)</h4>
-                        <div class="visualization-container">
-                             <img src="media\accuracy_improvement_dark.png" alt="Bar chart comparing SGP4 and ML Model MAE">
-                        </div>
                         <p>In medium-term forecasts, SGP4's errors begin to compound. Our ML model's advantage grows, delivering significantly greater accuracy for weekly operational planning.</p>
                     </div>
 
-                    <div class="comparison-card">
+                    <div class="performance-slide">
+                        <img src="media\accuracy_improvement_dark.png" alt="Bar chart comparing SGP4 and ML Model MAE for Long-Term Accuracy">
                         <h4>Long-Term Accuracy (>7 Days)</h4>
-                        <div class="visualization-container">
-                             <img src="media\accuracy_improvement_dark.png" alt="Bar chart comparing SGP4 and ML Model MAE">
-                        </div>
                         <p>The ML-enhanced model is transformative for long-range ephemeris, reducing the Mean Absolute Error (MAE) by over 98% and enabling unprecedented catalog maintenance.</p>
                     </div>
+                    
+                    <button class="slider-nav-button prev">&#10094;</button>
+                    <button class="slider-nav-button next">&#10095;</button>
                 </div>
             </article>
 
@@ -500,11 +530,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Nav Toggle
             const menuToggle = document.querySelector('.menu-toggle');
             const mainNav = document.querySelector('.sticky-nav nav');
 
             if (menuToggle && mainNav) {
-                menuToggle.addEventListener('click', () => {
+                menuToggle.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent click from bubbling to document
                     mainNav.classList.toggle('nav-mobile-active');
                     const isExpanded = mainNav.classList.contains('nav-mobile-active');
                     menuToggle.setAttribute('aria-expanded', isExpanded);
@@ -526,8 +558,37 @@
                     }
                 });
             }
+            
+            // Performance Slider Logic
+            const slides = document.querySelectorAll('.performance-slide');
+            const prevButton = document.querySelector('.slider-nav-button.prev');
+            const nextButton = document.querySelector('.slider-nav-button.next');
+            let currentSlide = 0;
+
+            if (slides.length > 0) {
+                function showSlide(index) {
+                    slides.forEach((slide, i) => {
+                        slide.classList.remove('active');
+                        if (i === index) {
+                            slide.classList.add('active');
+                        }
+                    });
+                }
+
+                prevButton.addEventListener('click', () => {
+                    currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
+                    showSlide(currentSlide);
+                });
+
+                nextButton.addEventListener('click', () => {
+                    currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
+                    showSlide(currentSlide);
+                });
+                
+                // Initialize first slide
+                showSlide(currentSlide);
+            }
         });
     </script>
 </body>
 </html>
-
