@@ -306,6 +306,40 @@ function getClosestFrame(frames, now) {
     return closest;
 }
 
+function getInterpolatedFrameData(positions, currentTime) {
+    if (!positions || positions.length < 2) return null;
+
+    for (let i = 0; i < positions.length - 1; i++) {
+        const curr = positions[i];
+        const next = positions[i + 1];
+
+        // Ensure both frames have geo data to interpolate
+        if (!curr.geo || !next.geo) continue;
+
+        const currTime = new Date(curr.timestamp.$date).getTime();
+        const nextTime = new Date(next.timestamp.$date).getTime();
+        const nowTime = currentTime.getTime();
+
+        if (nowTime >= currTime && nowTime <= nextTime) {
+            const t = (nowTime - currTime) / (nextTime - currTime);
+            
+            // Interpolate geographic data
+            const latitude = THREE.MathUtils.lerp(curr.geo.latitude, next.geo.latitude, t);
+            const longitude = THREE.MathUtils.lerp(curr.geo.longitude, next.geo.longitude, t);
+            const altitude = THREE.MathUtils.lerp(curr.geo.altitude, next.geo.altitude, t);
+            
+            // We still need a timestamp for the UI
+            const timestamp = new Date(currTime + (nextTime - currTime) * t);
+
+            return {
+                geo: { latitude, longitude, altitude },
+                timestamp: { $date: timestamp.toISOString() } // Use a similar structure
+            };
+        }
+    }
+    return null; // Out of range
+}
+
 function updateSatelliteInfoUI(satData) {
     if (!satData || !satData.frames || satData.frames.length === 0) return;
 
