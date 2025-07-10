@@ -311,24 +311,26 @@ function updateSatelliteInfoUI(satData) {
 
     const now = getCurrentDataTime();
 
-    // أقرب نقطة بالزمن الحالي
-    const frame = getClosestFrame(satData.frames, now);
-    // console.log(frame);
-    // console.log(satData);
+    // Use the new interpolation function
+    let frame = getInterpolatedFrameData(satData.frames, now);
 
+    // If we are outside the interpolation range, fall back to the closest frame
+    if (!frame) {
+        frame = getClosestFrame(satData.frames, now);
+    }
 
-if (frame) {
-  document.getElementById("info-name").textContent = satData.name;
-  document.getElementById("info-alt").textContent = frame.geo?.altitude?.toFixed(2) || "--";
-  document.getElementById("info-lat").textContent = frame.geo?.latitude?.toFixed(4) || "--";
-  document.getElementById("info-long").textContent = frame.geo?.longitude?.toFixed(4) || "--";
-  document.getElementById("info-time").textContent = new Date(frame.timestamp.$date).toLocaleString();
+    if (frame && frame.geo) {
+      document.getElementById("info-name").textContent = satData.name;
+      document.getElementById("info-alt").textContent = frame.geo.altitude.toFixed(2);
+      document.getElementById("info-lat").textContent = frame.geo.latitude.toFixed(4);
+      document.getElementById("info-long").textContent = frame.geo.longitude.toFixed(4);
+      document.getElementById("info-time").textContent = new Date(frame.timestamp.$date).toLocaleString();
 
-  const altitudes = satData.frames.map(f => f.geo?.altitude || 0);
-  document.getElementById("info-apogee").textContent = Math.max(...altitudes).toFixed(2);
-  document.getElementById("info-perigee").textContent = Math.min(...altitudes).toFixed(2);
-}
-
+      // Apogee and Perigee are based on the entire dataset, so this part remains the same
+      const altitudes = satData.frames.map(f => f.geo?.altitude || 0);
+      document.getElementById("info-apogee").textContent = Math.max(...altitudes).toFixed(2);
+      document.getElementById("info-perigee").textContent = Math.min(...altitudes).toFixed(2);
+    }
 }
 
 
