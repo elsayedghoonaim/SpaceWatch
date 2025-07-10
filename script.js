@@ -74,7 +74,7 @@ async function initVisualization() {
 
     await createEarth();
 
-fetch('/api/TEST_3/TEST_3')
+fetch('/api/data/TEST_3/TEST_3')
         .then(res => res.json())
         .then(data => {
             console.log("data ",data);
