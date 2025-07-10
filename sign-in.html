@@ -94,7 +94,7 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const url = `http://nsst.runasp.net/api/User_Management_System/login`;
+            const url = '/api/auth/User_Management_System/login';
 
             try {
                 const response = await fetch(url, {
