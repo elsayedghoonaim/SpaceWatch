@@ -1,8 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/data/:path*",
       "destination": "http://44.214.115.150:5001/api/:path*"
+    },
+    {
+      "source": "/api/auth/:path*",
+      "destination": "http://nsst.runasp.net/api/:path*"
     }
   ]
 }

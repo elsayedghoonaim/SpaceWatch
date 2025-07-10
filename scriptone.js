@@ -1189,7 +1189,7 @@ document.getElementById('signup-form').addEventListener('submit', function(event
         password: password
     };
 
-    fetch('http://nsst.runasp.net/api/User_Management_System/register', {
+    fetch('/api/auth/User_Management_System/register', {
         method: 'POST', 
         headers: {
             'Content-Type': 'application/json', 
