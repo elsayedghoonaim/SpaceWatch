@@ -19,7 +19,39 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.remove('active'); // Ensure only one is active
         }
     });
+    
+    function updateNavOnLogin() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const signInLink = document.querySelector('a[href="sign-in.html"]');
+        const navUl = document.querySelector('.sticky-nav ul');
 
+        if (isLoggedIn === 'true' && signInLink && navUl) {
+            // Hide the "Sign In" link
+            signInLink.parentElement.style.display = 'none';
+
+            // Check if a "Sign Out" button already exists to avoid duplicates
+            if (!document.getElementById('sign-out-link')) {
+                // Create and add a "Sign Out" button
+                const signOutLi = document.createElement('li');
+                const signOutLink = document.createElement('a');
+                signOutLink.href = '#';
+                signOutLink.id = 'sign-out-link';
+                signOutLink.textContent = 'Sign Out';
+                signOutLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Remove the login state from local storage
+                    localStorage.removeItem('isLoggedIn');
+                    // Redirect to the sign-in page
+                    window.location.href = 'sign-in.html';
+                });
+                signOutLi.appendChild(signOutLink);
+                navUl.appendChild(signOutLi);
+            }
+        }
+    }
+
+    // Call the function to update the nav bar on page load
+    updateNavOnLogin();
     // --- Placeholder for Future Interactivity ---
 
     // Example: Smooth scrolling for internal links (if any)
