@@ -7,14 +7,11 @@
     <link rel="stylesheet" href="landing.css">
 
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Leaflet.js for 2D map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- satellite.js for SGP4 propagation -->
     <script src="https://cdn.jsdelivr.net/npm/satellite.js@4.1.3/dist/satellite.min.js"></script>
 
     <style>
@@ -56,7 +53,7 @@
         </nav>
         
         
-     
+    
     </header>
     <br>
 
@@ -64,15 +61,15 @@
         <header class="flex-shrink-0 z-20">
             <div class="bg-gray-800/80 backdrop-blur-sm p-4 rounded-lg border border-gray-700">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                     <div>
-                        <label for="satellite-select" class="block mb-2 text-sm font-medium text-gray-300">Satellite</label>
-                        <select id="satellite-select" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"></select>
-                    </div>
-                    <div>
-                        <label for="datetime-picker" class="block mb-2 text-sm font-medium text-gray-300">Prediction UTC Time</label>
-                        <input type="datetime-local" id="datetime-picker" class="w-full">
-                    </div>
-                    <button id="predict-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition duration-300">Predict</button>
+                        <div>
+                            <label for="satellite-select" class="block mb-2 text-sm font-medium text-gray-300">Satellite</label>
+                            <select id="satellite-select" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"></select>
+                        </div>
+                        <div>
+                            <label for="datetime-picker" class="block mb-2 text-sm font-medium text-gray-300">Prediction UTC Time</label>
+                            <input type="datetime-local" id="datetime-picker" class="w-full">
+                        </div>
+                        <button id="predict-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition duration-300">Predict</button>
                 </div>
             </div>
 
@@ -97,7 +94,11 @@
                                 <p class="text-sm text-gray-400">Speed</p>
                                 <p id="res-speed" class="text-2xl font-bold text-white">N/A</p>
                             </div>
-                        </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Prediction Model</p>
+                                <p id="res-model" class="text-xl font-bold text-white">N/A</p>
+                            </div>
+                            </div>
                     </div>
                     <div class="p-6 bg-gray-900/50 md:rounded-br-lg">
                         <h3 class="font-bold text-lg text-green-300 mb-4">ECI State Vector</h3>
@@ -137,27 +138,39 @@
 
     <script src="scriptone.js"></script>
     <script>
-        const SATELLITE_TLEs = {
-            "ISS (ZARYA)": ['1 25544U 98067A   24164.20593414  .00010959  00000+0  20197-3 0  9997', '2 25544  51.6402 188.8219 0008635  68.2033 112.5358 15.49503433458688'],
-            "NOAA-19": ['1 33591U 09005A   24163.92429408  .00000046  00000+0  34903-4 0  9992', '2 33591  99.1633 176.2238 0014605  78.3496 281.7919 14.12933903794711'],
-            "STARLINK-3030": ['1 47931U 21022AD  24163.66922907  .00006213  00000+0  38829-3 0  9999', '2 47931  53.2185 119.2274 0001648  88.5901 271.5202 15.05943011178559']
-        };
         const EARTH_RADIUS_KM = 6371;
-
         let map;
-        let satMarker, footprintCircle; 
+        let satMarker, footprintCircle;
+        let satelliteDatabase = {}; // To store fetched satellite data
 
         function init() {
             const satSelect = document.getElementById('satellite-select');
             const dateTimePicker = document.getElementById('datetime-picker');
             const predictBtn = document.getElementById('predict-btn');
-            
-            Object.keys(SATELLITE_TLEs).forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                satSelect.appendChild(option);
-            });
+
+            // Fetch satellite data from the endpoint
+            fetch('/api/data/TEST_3/TEST_3')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        console.warn("No satellite position data found.");
+                        return;
+                    }
+                    
+                    // Populate satellite database and dropdown
+                    data.forEach(sat => {
+                        const noradId = sat.NoradId;
+                        satelliteDatabase[noradId] = sat;
+                        const option = document.createElement('option');
+                        option.value = noradId;
+                        option.textContent = `Satellite ${noradId}`;
+                        satSelect.appendChild(option);
+                    });
+                })
+                .catch(err => {
+                    console.error("Failed to fetch satellite data:", err);
+                    alert("Failed to load satellite data. Please try again later.");
+                });
             
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -171,27 +184,92 @@
             predictBtn.addEventListener('click', handlePrediction);
         }
 
+        // Function to interpolate position and calculate velocity
+        function getInterpolatedState(positions, currentTime) {
+            if (!positions || positions.length < 2) return null;
+
+            for (let i = 0; i < positions.length - 1; i++) {
+                const curr = positions[i];
+                const next = positions[i + 1];
+
+                const currTime = new Date(curr.timestamp.$date).getTime();
+                const nextTime = new Date(next.timestamp.$date).getTime();
+                const nowTime = currentTime.getTime();
+
+                if (nowTime >= currTime && nowTime <= nextTime) {
+                    const t = (nowTime - currTime) / (nextTime - currTime);
+                    
+                    // Interpolate position
+                    const posX = curr.position.x + t * (next.position.x - curr.position.x);
+                    const posY = curr.position.y + t * (next.position.y - curr.position.y);
+                    const posZ = curr.position.z + t * (next.position.z - curr.position.z);
+                    
+                    // Calculate velocity
+                    const timeDiffSeconds = (nextTime - currTime) / 1000;
+                    const velX = (next.position.x - curr.position.x) / timeDiffSeconds;
+                    const velY = (next.position.y - curr.position.y) / timeDiffSeconds;
+                    const velZ = (next.position.z - curr.position.z) / timeDiffSeconds;
+
+                    return {
+                        position: { x: posX, y: posY, z: posZ },
+                        velocity: { x: velX, y: velY, z: velZ }
+                    };
+                }
+            }
+            return null; // Out of range
+        }
+
+
         function handlePrediction() {
             document.getElementById('welcome-overlay').style.display = 'none';
             document.getElementById('results-card').classList.remove('hidden');
 
-            const selectedTle = SATELLITE_TLEs[document.getElementById('satellite-select').value];
+            const selectedSatId = document.getElementById('satellite-select').value;
+            const selectedSatData = satelliteDatabase[selectedSatId];
             const selectedTime = new Date(document.getElementById('datetime-picker').value);
-            const satrec = satellite.twoline2satrec(selectedTle[0], selectedTle[1]);
+
+            // --- MODIFIED SECTION START ---
+            // Determine which prediction model to use based on the date
+            const now = new Date();
+            const diffTime = selectedTime.getTime() - now.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            let modelName;
+            if (diffDays < 7) {
+                modelName = 'SGP4';
+            } else if (diffDays <= 20) {
+                modelName = 'Short Term Model';
+            } else if (diffDays <= 365) {
+                modelName = 'Medium Term Model';
+            } else {
+                modelName = 'Long Term Model';
+            }
+            // --- MODIFIED SECTION END ---
+
+            if (!selectedSatData) {
+                alert("Please select a satellite.");
+                return;
+            }
+
+            const state = getInterpolatedState(selectedSatData.positions, selectedTime);
+
+            if (!state) {
+                alert("Prediction failed. The selected time is outside the available data range for this satellite.");
+                return;
+            }
             
-            const prop = satellite.propagate(satrec, selectedTime);
-            if (!prop.position || !prop.velocity) { alert("Prediction failed."); return; }
+            updateResultsCard(state, selectedTime, modelName); // Pass the model name
             
-            updateResultsCard(prop, selectedTime);
-            
-            const posGd = satellite.eciToGeodetic(prop.position, satellite.gstime(selectedTime));
+            const gmst = satellite.gstime(selectedTime);
+            const posGd = satellite.eciToGeodetic(state.position, gmst);
             
             updateMapFeatures({ latitude: satellite.degreesLat(posGd.latitude), longitude: satellite.degreesLong(posGd.longitude), altitude: posGd.height });
             setTimeout(() => map.invalidateSize(), 0);
         }
         
-        function updateResultsCard(propagationOutput, time) {
-            const { position, velocity } = propagationOutput;
+        // --- MODIFIED FUNCTION SIGNATURE ---
+        function updateResultsCard(state, time, modelName) {
+            const { position, velocity } = state;
             
             const gmst = satellite.gstime(time);
             const posGd = satellite.eciToGeodetic(position, gmst);
@@ -201,6 +279,9 @@
             document.getElementById('res-lon').textContent = `${satellite.degreesLong(posGd.longitude).toFixed(4)}°`;
             document.getElementById('res-alt').textContent = `${posGd.height.toFixed(2)} km`;
             document.getElementById('res-speed').textContent = `${speed.toFixed(2)} km/s`;
+            
+            // --- ADDED LINE ---
+            document.getElementById('res-model').textContent = modelName;
 
             document.getElementById('res-pos-x').textContent = position.x.toFixed(2);
             document.getElementById('res-pos-y').textContent = position.y.toFixed(2);
