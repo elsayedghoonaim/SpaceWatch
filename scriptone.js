@@ -1221,7 +1221,7 @@ document.getElementById('signup-form').addEventListener('submit', function(event
         password: password
     };
 
-    fetch('/api/data/User_Management_System/register', {
+    fetch('http://44.214.115.150:5001/api/User_Management_System/register', {
         method: 'POST', 
         headers: {
             'Content-Type': 'application/json', 
