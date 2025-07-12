@@ -154,7 +154,7 @@
         const predictBtn = document.getElementById('predict-btn');
 
         // This part is working, so we'll keep it.
-        fetch('http://44.214.115.150:5001/api/TEST_3/TEST_3')
+        fetch('/api/data/TEST_3/TEST_3')
             .then(res => res.json())
             .then(data => {
                 if (data.length === 0) {
