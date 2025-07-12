@@ -139,177 +139,185 @@
 
     <script src="scriptone.js"></script>
     <script>
-        const EARTH_RADIUS_KM = 6371;
-        let map;
-        let satMarker, footprintCircle;
-        let satelliteDatabase = {}; // To store fetched satellite data
+    // --- NEW: API Endpoint for predictions ---
+    const PREDICTION_API_ENDPOINT = 'http://44.214.115.150:5001/api/SmartPrediction/predict';
 
-        function init() {
-            const satSelect = document.getElementById('satellite-select');
-            const dateTimePicker = document.getElementById('datetime-picker');
-            const predictBtn = document.getElementById('predict-btn');
+    const EARTH_RADIUS_KM = 6371;
+    let map;
+    let satMarker, footprintCircle;
+    // satelliteDatabase is no longer needed for predictions, only for the initial list.
+    let satelliteDatabase = {}; 
 
-            // Fetch satellite data from the endpoint
-            fetch('/api/data/TEST_3/TEST_3')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.length === 0) {
-                        console.warn("No satellite position data found.");
-                        return;
-                    }
-                    
-                    // Populate satellite database and dropdown
-                    data.forEach(sat => {
-                        const noradId = sat.NoradId;
-                        satelliteDatabase[noradId] = sat;
-                        const option = document.createElement('option');
-                        option.value = noradId;
-                        option.textContent = `Satellite ${noradId}`;
-                        satSelect.appendChild(option);
-                    });
-                })
-                .catch(err => {
-                    console.error("Failed to fetch satellite data:", err);
-                    alert("Failed to load satellite data. Please try again later.");
-                });
-            
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            dateTimePicker.value = now.toISOString().slice(0, 16);
+    function init() {
+        const satSelect = document.getElementById('satellite-select');
+        const dateTimePicker = document.getElementById('datetime-picker');
+        const predictBtn = document.getElementById('predict-btn');
 
-            map = L.map('map').setView([20, 0], 2);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>', subdomains: 'abcd', maxZoom: 19
-            }).addTo(map);
-
-            predictBtn.addEventListener('click', handlePrediction);
-        }
-
-        // Function to interpolate position and calculate velocity
-        function getInterpolatedState(positions, currentTime) {
-            if (!positions || positions.length < 2) return null;
-
-            for (let i = 0; i < positions.length - 1; i++) {
-                const curr = positions[i];
-                const next = positions[i + 1];
-
-                const currTime = new Date(curr.timestamp.$date).getTime();
-                const nextTime = new Date(next.timestamp.$date).getTime();
-                const nowTime = currentTime.getTime();
-
-                if (nowTime >= currTime && nowTime <= nextTime) {
-                    const t = (nowTime - currTime) / (nextTime - currTime);
-                    
-                    // Interpolate position
-                    const posX = curr.position.x + t * (next.position.x - curr.position.x);
-                    const posY = curr.position.y + t * (next.position.y - curr.position.y);
-                    const posZ = curr.position.z + t * (next.position.z - curr.position.z);
-                    
-                    // Calculate velocity
-                    const timeDiffSeconds = (nextTime - currTime) / 1000;
-                    const velX = (next.position.x - curr.position.x) / timeDiffSeconds;
-                    const velY = (next.position.y - curr.position.y) / timeDiffSeconds;
-                    const velZ = (next.position.z - curr.position.z) / timeDiffSeconds;
-
-                    return {
-                        position: { x: posX, y: posY, z: posZ },
-                        velocity: { x: velX, y: velY, z: velZ }
-                    };
+        // This part is working, so we'll keep it.
+        fetch('http://44.214.115.150:5001/api/TEST_3/TEST_3')
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    console.warn("No satellite position data found.");
+                    return;
                 }
-            }
-            return null; // Out of range
-        }
+                
+                // Populate dropdown
+                data.forEach(sat => {
+                    const noradId = sat.NoradId;
+                    satelliteDatabase[noradId] = sat;
+                    const option = document.createElement('option');
+                    option.value = noradId;
+                    option.textContent = `Satellite ${noradId}`;
+                    satSelect.appendChild(option);
+                });
+            })
+            .catch(err => {
+                console.error("Failed to fetch satellite data:", err);
+                alert("Failed to load satellite data. Please try again later.");
+            });
+        
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        dateTimePicker.value = now.toISOString().slice(0, 16);
 
+        map = L.map('map').setView([20, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>', subdomains: 'abcd', maxZoom: 19
+        }).addTo(map);
 
-        function handlePrediction() {
-            document.getElementById('welcome-overlay').style.display = 'none';
-            document.getElementById('results-card').classList.remove('hidden');
+        predictBtn.addEventListener('click', handlePrediction);
+    }
 
-            const selectedSatId = document.getElementById('satellite-select').value;
-            const selectedSatData = satelliteDatabase[selectedSatId];
-            const selectedTime = new Date(document.getElementById('datetime-picker').value);
+    // --- NEW: Helper function to handle different API response formats ---
+    /**
+     * Normalizes prediction data from the API into a consistent format.
+     * @param {object} predictionData - The predictionData object from the API response.
+     * @returns {object|null} A standardized state object or null if data is invalid.
+     */
+    function normalizePredictionData(predictionData) {
+        if (!predictionData) return null;
+        
+        const pos = {
+            x: predictionData.corrected_x_km ?? predictionData.x_km,
+            y: predictionData.corrected_y_km ?? predictionData.y_km,
+            z: predictionData.corrected_z_km ?? predictionData.z_km
+        };
 
-            // --- MODIFIED SECTION START ---
-            // Determine which prediction model to use based on the date
-            const now = new Date();
-            const diffTime = selectedTime.getTime() - now.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const vel = {
+            x: predictionData.corrected_vx_km_s ?? predictionData.vx_kms,
+            y: predictionData.corrected_vy_km_s ?? predictionData.vy_kms,
+            z: predictionData.corrected_vz_km_s ?? predictionData.vz_kms
+        };
 
-            let modelName;
-            if (diffDays < 7) {
-                modelName = 'SGP4';
-            } else if (diffDays <= 20) {
-                modelName = 'Short Term Model';
-            } else if (diffDays <= 365) {
-                modelName = 'Medium Term Model';
-            } else {
-                modelName = 'Long Term Model';
-            }
-            // --- MODIFIED SECTION END ---
-
-            if (!selectedSatData) {
-                alert("Please select a satellite.");
-                return;
-            }
-
-            const state = getInterpolatedState(selectedSatData.positions, selectedTime);
-
-            if (!state) {
-                alert("Prediction failed. The selected time is outside the available data range for this satellite.");
-                return;
-            }
-            
-            updateResultsCard(state, selectedTime, modelName); // Pass the model name
-            
-            const gmst = satellite.gstime(selectedTime);
-            const posGd = satellite.eciToGeodetic(state.position, gmst);
-            
-            updateMapFeatures({ latitude: satellite.degreesLat(posGd.latitude), longitude: satellite.degreesLong(posGd.longitude), altitude: posGd.height });
-            setTimeout(() => map.invalidateSize(), 0);
+        // Check if any value is still undefined
+        if (Object.values(pos).some(v => v === undefined) || Object.values(vel).some(v => v === undefined)) {
+            console.error("Could not parse prediction data:", predictionData);
+            return null;
         }
         
-        // --- MODIFIED FUNCTION SIGNATURE ---
-        function updateResultsCard(state, time, modelName) {
-            const { position, velocity } = state;
-            
-            const gmst = satellite.gstime(time);
-            const posGd = satellite.eciToGeodetic(position, gmst);
-            const speed = Math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2);
+        return { position: pos, velocity: vel };
+    }
 
-            document.getElementById('res-lat').textContent = `${satellite.degreesLat(posGd.latitude).toFixed(4)}°`;
-            document.getElementById('res-lon').textContent = `${satellite.degreesLong(posGd.longitude).toFixed(4)}°`;
-            document.getElementById('res-alt').textContent = `${posGd.height.toFixed(2)} km`;
-            document.getElementById('res-speed').textContent = `${speed.toFixed(2)} km/s`;
-            
-            // --- ADDED LINE ---
-            document.getElementById('res-model').textContent = modelName;
 
-            document.getElementById('res-pos-x').textContent = position.x.toFixed(2);
-            document.getElementById('res-pos-y').textContent = position.y.toFixed(2);
-            document.getElementById('res-pos-z').textContent = position.z.toFixed(2);
-            document.getElementById('res-vel-x').textContent = velocity.x.toFixed(4);
-            document.getElementById('res-vel-y').textContent = velocity.y.toFixed(4);
-            document.getElementById('res-vel-z').textContent = velocity.z.toFixed(4);
+    // --- REWRITTEN: This function now calls your prediction API ---
+    async function handlePrediction() {
+        document.getElementById('welcome-overlay').style.display = 'none';
+        document.getElementById('results-card').classList.remove('hidden');
+
+        const selectedSatId = document.getElementById('satellite-select').value;
+        const selectedTime = new Date(document.getElementById('datetime-picker').value);
+
+        if (!selectedSatId) {
+            alert("Please select a satellite.");
+            return;
         }
 
-        function updateMapFeatures({ latitude, longitude, altitude }) {
-            const latLng = [latitude, longitude];
-            
-            if (!satMarker) {
-                const satIcon = L.divIcon({ html: `<div class="w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-lg"></div>`, className: '', iconSize: [16, 16], iconAnchor: [8, 8] });
-                satMarker = L.marker(latLng, { icon: satIcon, zIndexOffset: 1000 }).addTo(map);
-            } else { satMarker.setLatLng(latLng); }
-            
-            const footprintRadius = EARTH_RADIUS_KM * Math.acos(EARTH_RADIUS_KM / (EARTH_RADIUS_KM + altitude)) * 1000;
-            if (!footprintCircle) {
-                footprintCircle = L.circle(latLng, { radius: footprintRadius, color: '#3b82f6', weight: 2, fillColor: '#3b82f6', fillOpacity: 0.15 }).addTo(map);
-            } else { footprintCircle.setLatLng(latLng).setRadius(footprintRadius); }
-            
-            
-            map.flyTo(latLng, 4);
-        }
+        const requestBody = {
+            noradId: selectedSatId,
+            date: selectedTime.toISOString() // Send date in ISO format
+        };
 
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
+        try {
+            const response = await fetch(PREDICTION_API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API Error (${response.status}): ${errorText}`);
+            }
+
+            const data = await response.json();
+            const state = normalizePredictionData(data.predictionData);
+            
+            if (!state) {
+                 throw new Error("Failed to parse position/velocity from API response.");
+            }
+            
+            // The API now provides the model name, so we use `data.usedModel`
+            updateResultsCard(state, selectedTime, data.usedModel); 
+            
+            const gmst = satellite.gstime(selectedTime);
+            // The satellite.js library needs the position vector as an object with x, y, z keys
+            const posGd = satellite.eciToGeodetic(state.position, gmst);
+            
+            updateMapFeatures({
+                latitude: satellite.degreesLat(posGd.latitude),
+                longitude: satellite.degreesLong(posGd.longitude),
+                altitude: posGd.height
+            });
+            setTimeout(() => map.invalidateSize(), 0);
+
+        } catch (error) {
+            console.error("Prediction failed:", error);
+            alert(`Prediction failed: ${error.message}`);
+        }
+    }
+    
+    // This function remains largely the same, but we make sure it uses the modelName from the API
+    function updateResultsCard(state, time, modelName) {
+        const { position, velocity } = state;
+        
+        const gmst = satellite.gstime(time);
+        const posGd = satellite.eciToGeodetic(position, gmst);
+        const speed = Math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2);
+
+        document.getElementById('res-lat').textContent = `${satellite.degreesLat(posGd.latitude).toFixed(4)}°`;
+        document.getElementById('res-lon').textContent = `${satellite.degreesLong(posGd.longitude).toFixed(4)}°`;
+        document.getElementById('res-alt').textContent = `${posGd.height.toFixed(2)} km`;
+        document.getElementById('res-speed').textContent = `${speed.toFixed(2)} km/s`;
+        
+        // This now gets the model name directly from the API response
+        document.getElementById('res-model').textContent = modelName;
+
+        document.getElementById('res-pos-x').textContent = position.x.toFixed(2);
+        document.getElementById('res-pos-y').textContent = position.y.toFixed(2);
+        document.getElementById('res-pos-z').textContent = position.z.toFixed(2);
+        document.getElementById('res-vel-x').textContent = velocity.x.toFixed(4);
+        document.getElementById('res-vel-y').textContent = velocity.y.toFixed(4);
+        document.getElementById('res-vel-z').textContent = velocity.z.toFixed(4);
+    }
+
+    function updateMapFeatures({ latitude, longitude, altitude }) {
+        const latLng = [latitude, longitude];
+        
+        if (!satMarker) {
+            const satIcon = L.divIcon({ html: `<div class="w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-lg"></div>`, className: '', iconSize: [16, 16], iconAnchor: [8, 8] });
+            satMarker = L.marker(latLng, { icon: satIcon, zIndexOffset: 1000 }).addTo(map);
+        } else { satMarker.setLatLng(latLng); }
+        
+        const footprintRadius = EARTH_RADIUS_KM * Math.acos(EARTH_RADIUS_KM / (EARTH_RADIUS_KM + altitude)) * 1000;
+        if (!footprintCircle) {
+            footprintCircle = L.circle(latLng, { radius: footprintRadius, color: '#3b82f6', weight: 2, fillColor: '#3b82f6', fillOpacity: 0.15 }).addTo(map);
+        } else { footprintCircle.setLatLng(latLng).setRadius(footprintRadius); }
+        
+        map.flyTo(latLng, 4);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>

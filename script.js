@@ -74,7 +74,7 @@ async function initVisualization() {
 
     await createEarth();
 
-fetch('/api/data/TEST_3/TEST_3')
+fetch('http://44.214.115.150:5001/api/TEST_3/TEST_3')
         .then(res => res.json())
         .then(data => {
             console.log("data ",data);
@@ -360,7 +360,7 @@ function updateSatelliteInfoUI(satData) {
       document.getElementById("info-long").textContent = frame.geo.longitude.toFixed(4);
       document.getElementById("info-time").textContent = new Date(frame.timestamp.$date).toLocaleString();
 
-      // Apogee and Perigee are based on the entire dataset, so this part remains the same
+      // Apogee and Petese are based on the entire dataset, so this part remains the same
       const altitudes = satData.frames.map(f => f.geo?.altitude || 0);
       document.getElementById("info-apogee").textContent = Math.max(...altitudes).toFixed(2);
       document.getElementById("info-perigee").textContent = Math.min(...altitudes).toFixed(2);
