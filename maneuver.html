@@ -136,6 +136,7 @@
                 <li><a href="orbit.html">Orbit Viz</a></li>
                 <li><a href="maneuver.html">Maneuver</a></li>
                 <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="spaceweather.html">Space Weather</a></li>
                 <li><a href="contact.html">Contact</a></li>
                 <li><a href="sign-in.html">Sign in</a></li>
             </ul>
@@ -216,6 +217,50 @@
                 </div>
             </div>
         </section>
+
+        <!-- Risk Analysis Section - NEW -->
+        <section class="mt-4 py-8">
+            <div class="glass-panel p-6 rounded-2xl">
+                <h2 class="text-2xl font-bold text-center text-red-400 mb-4">Risk Analysis & Maneuver Plan</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center md:text-left">
+                    <!-- Column 1: Risk Metrics -->
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-400">Threat Level</p>
+                            <p class="text-2xl font-bold text-red-500">HIGH</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Probability of Collision (Pc)</p>
+                            <p class="font-mono text-lg font-semibold text-red-400">1.25e-04</p>
+                        </div>
+                    </div>
+                    <!-- Column 2: Maneuver Details -->
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-400">Recommended Maneuver</p>
+                            <p class="text-xl font-bold text-yellow-300">Prograde Burn</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Maneuver Window</p>
+                            <p class="font-mono text-white">2025-07-11 10:00 to 12:00 UTC</p>
+                        </div>
+                    </div>
+                    <!-- Column 3: Outcome -->
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-400">Required Delta-V</p>
+                            <p class="font-mono text-white">0.5 m/s</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Post-Maneuver Miss Distance</p>
+                            <p class="font-mono text-lg font-semibold text-green-400">> 5 km</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End of Risk Analysis Section -->
+
     </main>
 
     <script src="scriptone.js"></script>
