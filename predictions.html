@@ -277,6 +277,7 @@
             document.getElementById('results-card').classList.remove('hidden');
 
             const selectedSatId = document.getElementById('satellite-select').value;
+            // 1. Get the original date selected by the user in the frontend.
             const selectedTime = new Date(document.getElementById('datetime-picker').value);
 
             if (!selectedSatId) {
@@ -284,9 +285,16 @@
                 return;
             }
 
+            // --- MODIFICATION START ---
+            // 2. Create a new date object for the prediction, one year in the future.
+            const predictionTime = new Date(selectedTime);
+            predictionTime.setFullYear(predictionTime.getFullYear() + 1);
+            // --- MODIFICATION END ---
+
             const requestBody = {
                 noradId: selectedSatId,
-                date: selectedTime.toISOString() // Send date in ISO format
+                // 3. Send the future date (predictionTime) to the backend API.
+                date: predictionTime.toISOString()
             };
 
             try {
@@ -308,11 +316,11 @@
                     throw new Error("Failed to parse position/velocity from API response.");
                 }
 
-                // The API now provides the model name, so we use `data.usedModel`
-                updateResultsCard(state, selectedTime, data.usedModel);
+                // 4. Use the future date (predictionTime) for calculations and display.
+                // This ensures the results card and map show data for the date the prediction was made for.
+                updateResultsCard(state, predictionTime, data.usedModel);
 
-                const gmst = satellite.gstime(selectedTime);
-                // The satellite.js library needs the position vector as an object with x, y, z keys
+                const gmst = satellite.gstime(predictionTime);
                 const posGd = satellite.eciToGeodetic(state.position, gmst);
 
                 updateMapFeatures({
@@ -326,9 +334,7 @@
                 console.error("Prediction failed:", error);
                 if (error.message == "Circle radius cannot be NaN") {
                     console.log("success");
-
                 } else {
-
                     // alert(`Prediction failed: ${error.message}`);
                 }
             }
