@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rujum - Conjunction Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #ffffff;
+            --accent-color: #b0b0b0;
+            --border-color: rgba(255, 255, 255, 0.15);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #e0e0e0;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            pointer-events: none;
+            background-image:
+                radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 130px 80px, #eee, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 160px 120px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 200px 150px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 300px 250px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2.5px 2.5px at 400px 350px, #fff, rgba(0,0,0,0)),
+                radial-gradient(3px 3px at 500px 450px, rgba(200, 200, 255, 0.05), rgba(0,0,0,0)),
+                radial-gradient(4px 4px at 650px 550px, rgba(200, 200, 255, 0.03), rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size:
+                200px 200px, 250px 250px, 300px 300px, 350px 350px, 400px 400px, 450px 450px,
+                500px 500px, 600px 600px, 700px 700px, 800px 800px, 900px 900px;
+            background-color: #000000;
+            animation: moveStars 200s linear infinite;
+        }
+
+        @keyframes moveStars {
+            from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+            to {
+                background-position:
+                    -1000px 1000px, -1200px 1200px, -1400px 1400px, -1600px 1600px, -1800px 1800px, -2000px 2000px,
+                    -2500px 2500px, -3000px 3000px, -3500px 3500px, -4000px 4000px, -4500px 4500px;
+            }
+        }
+        .glass-panel {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        #conjunction-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        #conjunction-canvas:active {
+            cursor: grabbing;
+        }
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sticky-nav nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+
+        .sticky-nav .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .sticky-nav ul {
+            display: flex;
+        }
+
+        .sticky-nav ul li {
+            margin-left: 2rem;
+        }
+
+        .sticky-nav ul li a {
+            color: var(--accent-color);
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-bottom: 3px solid transparent;
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+
+        .sticky-nav ul li a:hover,
+        .sticky-nav ul li a.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">Rujum</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false"></button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="maneuver.html">Maneuver</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="spaceweather.html">Space Weather</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="sign-in.html">Sign in</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left Panel: Information -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- Threat Description -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h2 class="text-xl font-bold text-white mb-2">The Growing Threat of Space Debris</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        With thousands of active satellites and millions of pieces of debris, the risk of collision in orbit is a critical concern. Our platform provides unparalleled insight into potential conjunction events.
+                    </p>
+                </div>
+
+                <!-- Conjunction Details -->
+                <div id="details-panel" class="glass-panel p-6 rounded-2xl">
+                    <h3 class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2">High-Risk Conjunction Event</h3>
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <p class="font-semibold text-blue-300">Time of Closest Approach (TCA):</p>
+                            <p id="tca-time" class="text-white font-mono">2025-07-11 14:30:15 UTC</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-blue-300">Predicted Miss Distance:</p>
+                            <p id="miss-distance" class="text-white font-mono">15.2 meters</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-blue-300">Max Probability of Collision (Pc):</p>
+                            <p id="collision-prob" class="text-red-400 font-bold font-mono text-base">1.25e-04 (HIGH)</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-700 space-y-3">
+                         <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-300">Object 1 (RSO):</span>
+                            <span class="font-mono text-xs bg-blue-900/50 text-blue-200 px-2 py-1 rounded">STARLINK-3015</span>
+                        </div>
+                         <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-300">Object 2 (TNO):</span>
+                            <span class="font-mono text-xs bg-red-900/50 text-red-200 px-2 py-1 rounded">DEBRIS (FENGYUN 1C)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: 3D Visualization -->
+            <div class="lg:col-span-2 h-[400px] md:h-[600px] lg:h-auto rounded-2xl overflow-hidden relative glass-panel">
+                <div id="canvas-container" class="w-full h-full">
+                    <canvas id="conjunction-canvas"></canvas>
+                </div>
+                 <div class="absolute top-4 left-4 text-xs text-gray-400 bg-black/30 px-2 py-1 rounded">
+                    Use mouse to rotate, pan, and zoom.
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <section class="mt-12 py-8">
+             <h2 class="text-2xl font-bold text-center text-white mb-2">Monitor with Unprecedented Precision</h2>
+             <p class="text-center text-gray-400 mb-8 max-w-2xl mx-auto">Our system leverages cutting-edge technology to provide the most reliable space situational awareness data.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 rounded-2xl text-center">
+                    <h3 class="font-bold text-blue-300 mb-2">Real-time Tracking</h3>
+                    <p class="text-sm text-gray-300">Continuous monitoring of orbital objects with millisecond latency.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl text-center">
+                    <h3 class="font-bold text-blue-300 mb-2">AI-Powered Predictions</h3>
+                    <p class="text-sm text-gray-300">Advanced machine learning models for highly accurate conjunction forecasting.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl text-center">
+                    <h3 class="font-bold text-blue-300 mb-2">Collision Avoidance</h3>
+                    <p class="text-sm text-gray-300">Actionable alerts and maneuver recommendations to safeguard assets.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk Analysis Section - NEW -->
+        <section class="mt-4 py-8">
+            <div class="glass-panel p-6 rounded-2xl">
+                <h2 class="text-2xl font-bold text-center text-red-400 mb-4">Risk Analysis & Maneuver Plan</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center md:text-left">
+                    <!-- Column 1: Risk Metrics -->
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-400">Threat Level</p>
+                            <p class="text-2xl font-bold text-red-500">HIGH</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Probability of Collision (Pc)</p>
+                            <p class="font-mono text-lg font-semibold text-red-400">1.25e-04</p>
+                        </div>
+                    </div>
+                    <!-- Column 2: Maneuver Details -->
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-400">Recommended Maneuver</p>
+                            <p class="text-xl font-bold text-yellow-300">Prograde Burn</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Maneuver Window</p>
+                            <p class="font-mono text-white">2025-07-11 10:00 to 12:00 UTC</p>
+                        </div>
+                    </div>
+                    <!-- Column 3: Outcome -->
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-400">Required Delta-V</p>
+                            <p class="font-mono text-white">0.5 m/s</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Post-Maneuver Miss Distance</p>
+                            <p class="font-mono text-lg font-semibold text-green-400">> 5 km</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End of Risk Analysis Section -->
+
+    </main>
+
+    <script src="scriptone.js"></script>
+    <script>
+        // --- THREE.js Scene Setup ---
+        const canvasContainer = document.getElementById('canvas-container');
+        const canvas = document.getElementById('conjunction-canvas');
+
+        let scene, camera, renderer, controls;
+        let earth, rso, tno, rsoOrbit, tnoOrbit, rsoError, tnoError, closestApproachMarker;
+
+        // --- Animation Parameters ---
+        const clock = new THREE.Clock();
+        // Define elliptical path parameters
+        const rsoPath = { a: 6, b: 5.5, speed: 0.2, inclination: 0.1 };
+        const tnoPath = { a: 5.8, b: 5.9, speed: 0.21, inclination: -0.15 };
+
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 1000);
+            camera.position.set(10, 10, 20);
+            camera.lookAt(scene.position);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Lighting
+            scene.add(new THREE.AmbientLight(0x404040, 2));
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            directionalLight.position.set(5, 3, 5);
+            scene.add(directionalLight);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 5;
+            controls.maxDistance = 100;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.2;
+
+            // --- Create Objects ---
+
+            // Earth
+            const earthGeometry = new THREE.SphereGeometry(3, 64, 64);
+            const earthMaterial = new THREE.MeshPhongMaterial({
+                color: 0x639bff,
+                shininess: 10,
+            });
+            earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            scene.add(earth);
+            
+            // Starfield
+            const starGeometry = new THREE.BufferGeometry();
+            const starVertices = [];
+            for (let i = 0; i < 10000; i++) {
+                const x = THREE.MathUtils.randFloatSpread(200);
+                const y = THREE.MathUtils.randFloatSpread(200);
+                const z = THREE.MathUtils.randFloatSpread(200);
+                starVertices.push(x, y, z);
+            }
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starMaterial = new THREE.PointsMaterial({ color: 0x888888, size: 0.05 });
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+
+
+            // Resident Space Object (RSO) - The one we want to protect
+            const rsoGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+            const rsoMaterial = new THREE.MeshPhongMaterial({ color: 0x00aaff });
+            rso = new THREE.Mesh(rsoGeometry, rsoMaterial);
+            scene.add(rso);
+            
+            // Error ellipsoid for RSO
+            const rsoErrorGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+            const rsoErrorMaterial = new THREE.MeshBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.15 });
+            rsoError = new THREE.Mesh(rsoErrorGeometry, rsoErrorMaterial);
+            rso.add(rsoError); // Attach to RSO
+
+            // Threatening Near Earth Object (TNO)
+            const tnoGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+            const tnoMaterial = new THREE.MeshPhongMaterial({ color: 0xff4444 });
+            tno = new THREE.Mesh(tnoGeometry, tnoMaterial);
+            scene.add(tno);
+            
+            // Error ellipsoid for TNO
+            const tnoErrorGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+            const tnoErrorMaterial = new THREE.MeshBasicMaterial({ color: 0xff4444, transparent: true, opacity: 0.15 });
+            tnoError = new THREE.Mesh(tnoErrorGeometry, tnoErrorMaterial);
+            tno.add(tnoError); // Attach to TNO
+
+            // Orbits
+            rsoOrbit = createOrbitPath(rsoPath.a, rsoPath.b, 0x00aaff, rsoPath.inclination);
+            tnoOrbit = createOrbitPath(tnoPath.a, tnoPath.b, 0xff4444, tnoPath.inclination);
+            scene.add(rsoOrbit);
+            scene.add(tnoOrbit);
+            
+            // Closest Approach Marker
+            const markerGeom = new THREE.SphereGeometry(0.15, 8, 8);
+            const markerMat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0 });
+            closestApproachMarker = new THREE.Mesh(markerGeom, markerMat);
+            scene.add(closestApproachMarker);
+
+
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize, false);
+            onWindowResize(); // Set initial size
+        }
+
+        function createOrbitPath(a, b, color, inclination) {
+            const points = [];
+            for (let i = 0; i <= 360; i++) {
+                const angle = THREE.MathUtils.degToRad(i);
+                const x = a * Math.cos(angle);
+                const z = b * Math.sin(angle);
+                points.push(new THREE.Vector3(x, 0, z));
+            }
+            const curve = new THREE.CatmullRomCurve3(points);
+            const geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(100));
+            const material = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.5 });
+            const orbit = new THREE.Line(geometry, material);
+            orbit.rotation.x = inclination;
+            return orbit;
+        }
+
+        function onWindowResize() {
+            const width = canvasContainer.clientWidth;
+            const height = canvasContainer.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        let closestDist = Infinity;
+        let closestPos = new THREE.Vector3();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Animate objects along their elliptical paths
+            const rsoAngle = elapsedTime * rsoPath.speed;
+            rso.position.x = rsoPath.a * Math.cos(rsoAngle);
+            rso.position.z = rsoPath.b * Math.sin(rsoAngle);
+            rso.position.applyEuler(new THREE.Euler(rsoPath.inclination, 0, 0, 'XYZ'));
+
+
+            const tnoAngle = elapsedTime * tnoPath.speed;
+            tno.position.x = tnoPath.a * Math.cos(tnoAngle);
+            tno.position.z = tnoPath.b * Math.sin(tnoAngle);
+            tno.position.applyEuler(new THREE.Euler(tnoPath.inclination, 0, 0, 'XYZ'));
+
+            // Check distance
+            const currentDist = rso.position.distanceTo(tno.position);
+            
+            // The point of "closest approach" in this simulation is fixed where the orbits cross
+            // For a real scenario this would be calculated. Here we just find it visually.
+            if (currentDist < 1.0 && currentDist < closestDist) {
+                closestDist = currentDist;
+                closestPos.lerpVectors(rso.position, tno.position, 0.5);
+                closestApproachMarker.position.copy(closestPos);
+                closestApproachMarker.material.opacity = 1; // Make it visible
+            }
+            
+            // Pulsating effect for error ellipsoids
+            const pulse = Math.sin(elapsedTime * 2) * 0.05 + 1;
+            rsoError.scale.set(pulse, pulse, pulse);
+            tnoError.scale.set(pulse, pulse, pulse);
+
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // --- Run ---
+        init();
+        animate();
+
+    </script>
+</body>
+</html>

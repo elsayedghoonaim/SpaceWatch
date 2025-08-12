@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rujum - Space Weather</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        /* General Styles */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #ffffff;
+            --accent-color: #b0b0b0;
+            --background-color: #000000;
+            --text-color: #e0e0e0;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --card-background: rgba(18, 18, 18, 0.8);
+            --border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            pointer-events: none;
+            background-image:
+                radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 200px 150px, #fff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px, 350px 350px, 500px 500px, 700px 700px;
+            background-color: var(--background-color);
+            animation: moveStars 200s linear infinite;
+        }
+
+        @keyframes moveStars {
+            from { background-position: 0 0, 0 0, 0 0, 0 0; }
+            to { background-position: -1000px 1000px, -1600px 1600px, -2500px 2500px, -3500px 3500px; }
+        }
+
+        /* Navigation */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(10, 14, 26, 0.7);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sticky-nav nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+
+        .sticky-nav .logo a {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .sticky-nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .sticky-nav ul li {
+            margin-left: 2rem;
+        }
+
+        .sticky-nav ul li a {
+            color: var(--accent-color);
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0.5rem 0;
+            border-bottom: 3px solid transparent;
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+
+        .sticky-nav ul li a:hover,
+        .sticky-nav ul li a.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            font-size: 1.8rem;
+            padding: 0.2rem 0.6rem;
+            cursor: pointer;
+            border-radius: 4px;
+            line-height: 1;
+        }
+
+        /* Main Dashboard Layout */
+        .dashboard-container {
+            width: 100%;
+            padding-bottom: 4rem; /* pb-16 */
+        }
+
+        .dashboard-header {
+            padding: 1.5rem 1rem;
+        }
+        
+        .dashboard-header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.25rem; /* text-3xl */
+            font-weight: 700;
+            color: white;
+        }
+
+        .dashboard-header p {
+            font-size: 0.875rem; /* text-sm */
+            color: #93c5fd; /* text-blue-300 */
+        }
+        
+        .dashboard-main {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .tabs-container {
+            margin-bottom: 2.5rem; /* Increased margin */
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+        }
+
+        /* Panel and Card Styles */
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 2rem; /* gap-8 */
+        }
+
+        .content-block {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 1rem;
+        }
+        
+        .content-block h3 {
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            color: #d1d5db;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.375rem;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #4b5563;
+        }
+        .tab-btn.active {
+            color: white;
+            background-color: rgba(59, 130, 246, 0.5);
+            border-color: #3b82f6;
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.2);
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .filter-btn {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            color: #d1d5db;
+            background-color: rgba(55, 65, 81, 0.5);
+            border-radius: 0.375rem;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .filter-btn:hover {
+            background-color: rgba(75, 85, 99, 0.5);
+        }
+        .filter-btn.active {
+            background-color: rgba(59, 130, 246, 0.5);
+            color: white;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive Grid and Layout */
+        @media (min-width: 1024px) {
+            .panel-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .lg-col-span-2 {
+                grid-column: span 2 / span 2;
+            }
+            .lg-col-span-3 {
+                grid-column: span 3 / span 3;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 1.875rem; /* sm:text-3xl */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sticky-nav nav {
+                position: relative;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.8rem 1rem;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .sticky-nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: #0a0e1a;
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem 0;
+                border-top: 1px solid var(--border-color);
+            }
+            .sticky-nav nav.nav-mobile-active ul {
+                display: flex;
+            }
+            .sticky-nav ul li {
+                margin: 0.8rem 0;
+                width: 100%;
+                text-align: center;
+            }
+            .sticky-nav ul li a {
+                padding: 0.8rem 1rem;
+                display: block;
+                width: 100%;
+                border-bottom: none;
+            }
+            .sticky-nav ul li a:hover,
+            .sticky-nav ul li a.active {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">Rujum</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                ☰ </button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="maneuver.html">Maneuver</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="space_weather.html" class="active">Space Weather</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="sign-in.html">Sign in</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <header class="dashboard-header">
+            <div class="dashboard-header-content">
+                <h1>Space Environment Events</h1>
+                <p>Real-time monitoring of solar and geomagnetic activity.</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            
+            <!-- Tab Navigation -->
+            <div class="tabs-container">
+                <nav class="tabs-nav" aria-label="Tabs">
+                    <button id="tab-solar" class="tab-btn active" data-target="panel-solar">Solar Activity</button>
+                    <button id="tab-geomagnetic" class="tab-btn" data-target="panel-geomagnetic">Geomagnetic Field</button>
+                    <button id="tab-debris" class="tab-btn" data-target="panel-debris">Orbital Debris</button>
+                    <button id="tab-health" class="tab-btn" data-target="panel-health">Satellite Health</button>
+                </nav>
+            </div>
+
+            <!-- Tab Panels -->
+            <div>
+                <!-- Solar Activity Panel -->
+                <div id="panel-solar" class="panel-grid">
+                    <div class="content-block lg-col-span-2">
+                        <h3>Solar Wind (Live Feed)</h3>
+                        <div class="chart-container">
+                            <canvas id="solarWindChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="content-block">
+                        <h3>Recent Solar Flares (24h)</h3>
+                        <div class="chart-container">
+                            <canvas id="solarFlareChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="content-block lg-col-span-2">
+                        <h3>Sunspot Cycle (14 Days)</h3>
+                        <div class="chart-container">
+                            <canvas id="sunspotChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="content-block">
+                        <h3>CME Alerts</h3>
+                        <ul id="cme-alerts-list" style="height: 300px; overflow-y: auto; padding-right: 0.5rem;">
+                           <!-- CME Alerts will be dynamically inserted here -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Geomagnetic Field Panel -->
+                <div id="panel-geomagnetic" class="hidden panel-grid">
+                    <div class="content-block" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <h3>Planetary K-index (Kp)</h3>
+                        <div style="width: 12rem; height: 12rem;">
+                            <canvas id="kpIndexChart"></canvas>
+                        </div>
+                        <p id="kp-text" style="margin-top: 1rem; font-size: 1.5rem; font-weight: 700;"></p>
+                    </div>
+                    <div class="content-block lg-col-span-2">
+                        <h3>Geomagnetic Storm Index (Dst)</h3>
+                         <div class="chart-container">
+                            <canvas id="dstIndexChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="content-block lg-col-span-3">
+                        <h3>Auroral Power Index (Live)</h3>
+                        <div class="chart-container">
+                            <canvas id="auroralPowerChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orbital Debris Panel -->
+                <div id="panel-debris" class="hidden panel-grid" style="grid-template-columns: repeat(1, 1fr); @media (min-width: 1024px) { grid-template-columns: repeat(2, 1fr); }">
+                    <div class="content-block">
+                        <h3>Debris Population by Altitude</h3>
+                        <div class="chart-container" style="max-width: 24rem; margin: auto;">
+                            <canvas id="debrisAltitudeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="content-block">
+                        <h3>Newly Cataloged Debris (YTD)</h3>
+                        <div class="chart-container">
+                            <canvas id="newDebrisChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="content-block lg-col-span-2">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>Debris Growth Forecast (10yr)</h3>
+                            <div id="debris-forecast-filters" style="display: flex; gap: 0.5rem;">
+                                <button class="filter-btn active" data-model="conservative">Conservative</button>
+                                <button class="filter-btn" data-model="aggressive">Aggressive</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="debrisForecastChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Satellite Health Panel -->
+                <div id="panel-health" class="hidden panel-grid">
+                    <div class="content-block lg-col-span-2">
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; @media (min-width: 640px) { flex-direction: row; align-items: center; }">
+                            <h3>Component Degradation Forecast</h3>
+                            <div style="margin-top: 0.75rem; @media (min-width: 640px) { margin-top: 0; }">
+                                <label for="health-satellite-select" style="font-size: 0.875rem; font-weight: 500; color: #93c5fd; margin-right: 0.5rem;">Asset:</label>
+                                <select id="health-satellite-select" style="background-color: rgba(31, 41, 55, 0.5); border: 1px solid #4b5563; border-radius: 0.375rem; padding: 0.5rem 0.75rem; color: white; outline: none;">
+                                    <option value="TERRA-1">TERRA-1</option>
+                                    <option value="AQUA-1">AQUA-1</option>
+                                    <option value="GPS-SV08">GPS-SV08</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="degradationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="content-block" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                        <h3>Predicted End-of-Life</h3>
+                        <p id="eol-date" style="font-size: 2.25rem; font-weight: 700; color: #93c5fd;">2029-11-15</p>
+                        <p style="color: #9ca3af; margin-top: 0.5rem;">Based on current degradation rates and fuel consumption.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="scriptone.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Global State ---
+            const charts = {};
+            const intervals = [];
+
+            // --- Tab Functionality ---
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panels = document.querySelectorAll('[id^="panel-"]');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    panels.forEach(p => p.classList.add('hidden'));
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.target).classList.remove('hidden');
+                });
+            });
+
+            // --- Chart Helper ---
+            function chartOptions(scaleType, scalesConfig, legendDisplay = true, additionalPlugins = {}) {
+                const baseScales = {};
+                if (scaleType === 'time') {
+                    baseScales.x = { type: 'time', time: { unit: 'minute' }, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#9ca3af' } };
+                } else {
+                    baseScales.x = { grid: { display: false }, ticks: { color: '#9ca3af' } };
+                }
+                Object.keys(scalesConfig).forEach(key => {
+                    baseScales[key] = { ...baseScales[key], ...scalesConfig[key], grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#9ca3af' } };
+                });
+                return {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: legendDisplay, labels: { color: '#9ca3af' } }, tooltip: { backgroundColor: '#1e293b', titleFont: { size: 14 }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 4 }, ...additionalPlugins },
+                    scales: baseScales
+                };
+            }
+
+            // --- Data Generators ---
+            const generateData = {
+                solarWind: () => ({ speed: 400 + Math.random() * 100 - 50, density: 5 + Math.random() * 4 - 2 }),
+                auroralPower: () => 20 + Math.random() * 30,
+                cmeAlerts: () => {
+                    const cmeList = document.getElementById('cme-alerts-list');
+                    cmeList.innerHTML = `
+                        <li style="display:flex; align-items:flex-start; gap: 0.75rem; margin-bottom:0.75rem;"><span style="width:0.75rem; height:0.75rem; margin-top:0.375rem; border-radius:9999px; background-color:#ef4444; flex-shrink:0;"></span><div><p style="font-weight:600;">Type X Flare Detected</p><p style="font-size:0.875rem; color:#9ca3af;">Source: AR3890 | Impact: ~48 hrs</p></div></li>
+                        <li style="display:flex; align-items:flex-start; gap: 0.75rem; margin-bottom:0.75rem;"><span style="width:0.75rem; height:0.75rem; margin-top:0.375rem; border-radius:9999px; background-color:#f59e0b; flex-shrink:0;"></span><div><p style="font-weight:600;">Halo CME Observed</p><p style="font-size:0.875rem; color:#9ca3af;">Source: Sun-Earth Line | Impact: ~72 hrs</p></div></li>
+                        <li style="display:flex; align-items:flex-start; gap: 0.75rem;"><span style="width:0.75rem; height:0.75rem; margin-top:0.375rem; border-radius:9999px; background-color:#22c55e; flex-shrink:0;"></span><div><p style="font-weight:600;">Minor Proton Event</p><p style="font-size:0.875rem; color:#9ca3af;">Source: AR3887 | Impact: Ongoing</p></div></li>
+                    `;
+                },
+                debrisForecast: (model) => {
+                    const base = [5, 12, 20, 28, 35, 45, 55, 68, 80, 95];
+                    return model === 'aggressive' ? base.map(v => v * 1.5) : base;
+                },
+                degradation: (satellite) => {
+                    const data = {
+                        'TERRA-1': { eol: '2029-11-15', solar: [98, 95, 92, 88, 85, 81], battery: [99, 98, 96, 93, 90, 86], thruster: [80, 75, 70, 65, 60, 55] },
+                        'AQUA-1': { eol: '2031-05-20', solar: [99, 98, 97, 96, 94, 92], battery: [99, 98, 97, 95, 93, 91], thruster: [95, 92, 88, 85, 81, 78] },
+                        'GPS-SV08': { eol: '2028-01-10', solar: [95, 91, 87, 82, 78, 73], battery: [98, 95, 91, 88, 84, 80], thruster: [70, 62, 55, 48, 40, 33] }
+                    };
+                    return data[satellite];
+                }
+            };
+
+            // --- Chart Creation Functions ---
+            function createSolarCharts() {
+                charts.solarWind = new Chart('solarWindChart', { type: 'line', data: { datasets: [{ label: 'Speed (km/s)', data: [], borderColor: '#3b82f6', backgroundColor: '#3b82f633', yAxisID: 'y', tension: 0.3, pointRadius: 0, fill: true }, { label: 'Density (p/cm³)', data: [], borderColor: '#f59e0b', backgroundColor: '#f59e0b33', yAxisID: 'y1', tension: 0.3, pointRadius: 0, fill: true }] }, options: chartOptions('time', { y: { position: 'left', title: { display: true, text: 'Speed (km/s)', color: '#9ca3af' } }, y1: { position: 'right', title: { display: true, text: 'Density (p/cm³)', color: '#9ca3af' }, grid: { drawOnChartArea: false } } }) });
+                charts.solarFlare = new Chart('solarFlareChart', { type: 'bar', data: { labels: ['C-Class', 'M-Class', 'X-Class'], datasets: [{ label: 'Count', data: [12, 3, 1], backgroundColor: ['#14b8a6', '#f97316', '#ef4444'], borderWidth: 0 }] }, options: chartOptions('category', { y: { beginAtZero: true } }, false) });
+                const sunspotLabels = Array.from({length: 14}, (_, i) => new Date(Date.now() - (13 - i) * 864e5));
+                charts.sunspot = new Chart('sunspotChart', { type: 'line', data: { labels: sunspotLabels, datasets: [{ label: 'Sunspot Count', data: Array.from({length: 14}, (_,i) => 50 + Math.sin(i/2)*25 + Math.random()*10), borderColor: '#f59e0b', backgroundColor: '#f59e0b33', tension: 0.4, fill: true }] }, options: chartOptions('time', { y: { beginAtZero: false } }) });
+                generateData.cmeAlerts();
+            }
+
+            function createGeomagneticCharts() {
+                const kpValue = 4;
+                const kpColor = kpValue < 4 ? '#14b8a6' : kpValue < 6 ? '#f97316' : '#ef4444';
+                document.getElementById('kp-text').textContent = `Kp = ${kpValue}`;
+                document.getElementById('kp-text').style.color = kpColor;
+                charts.kpIndex = new Chart('kpIndexChart', { type: 'doughnut', data: { datasets: [{ data: [kpValue, 9 - kpValue], backgroundColor: [kpColor, '#ffffff1a'], borderWidth: 0, circumference: 270, rotation: 225 }] }, options: { responsive: true, maintainAspectRatio: true, cutout: '60%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } });
+                const dstLabels = Array.from({length: 48}, (_, i) => new Date(Date.now() - (47 - i) * 36e5));
+                charts.dstIndex = new Chart('dstIndexChart', { type: 'line', data: { labels: dstLabels, datasets: [{ label: 'Dst Index (nT)', data: Array.from({length: 48}, () => -10 - Math.random() * 40), borderColor: '#ef4444', backgroundColor: '#ef444433', tension: 0.4, pointRadius: 0, fill: true }] }, options: chartOptions('time', {y: { title: { display: true, text: 'nT', color: '#9ca3af' }}}) });
+                charts.auroralPower = new Chart('auroralPowerChart', { type: 'line', data: { datasets: [{ label: 'Power (GW)', data: [], borderColor: '#8b5cf6', backgroundColor: '#8b5cf633', tension: 0.3, pointRadius: 0, fill: true }] }, options: chartOptions('time', { y: { title: { display: true, text: 'Gigawatts (GW)', color: '#9ca3af' } } }) });
+            }
+
+            function createDebrisCharts() {
+                charts.debrisAltitude = new Chart('debrisAltitudeChart', { type: 'doughnut', data: { labels: ['LEO', 'MEO', 'GEO'], datasets: [{ data: [95, 4, 1], backgroundColor: ['#3b82f6', '#f59e0b', '#ef4444'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af' } } } } });
+                charts.newDebris = new Chart('newDebrisChart', { type: 'bar', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], datasets: [{ label: 'New Objects', data: [25, 30, 15, 45, 22, 50, 33], backgroundColor: '#3b82f6aa', borderWidth: 0 }] }, options: chartOptions('category', { y: { beginAtZero: true } }, false) });
+                const forecastLabels = Array.from({length: 10}, (_, i) => new Date().getFullYear() + i);
+                charts.debrisForecast = new Chart('debrisForecastChart', { type: 'bar', data: { labels: forecastLabels, datasets: [{ label: 'Total Debris Objects (x1000)', data: generateData.debrisForecast('conservative'), backgroundColor: '#a855f7aa', borderWidth: 0 }] }, options: chartOptions('category', { y: { beginAtZero: true, title: { display: true, text: 'Objects (in thousands)', color: '#9ca3af' } } }, false) });
+            }
+
+            function createHealthCharts() {
+                const forecastYears = Array.from({length: 6}, (_, i) => new Date().getFullYear() + i);
+                charts.degradation = new Chart('degradationChart', { type: 'line', data: { labels: forecastYears, datasets: [ { label: 'Solar Panels', data: [], borderColor: '#f59e0b', tension: 0.1 }, { label: 'Battery', data: [], borderColor: '#3b82f6', tension: 0.1 }, { label: 'Thruster Fuel', data: [], borderColor: '#14b8a6', tension: 0.1 } ] }, options: chartOptions('category', { y: { max: 100, min: 0, title: { display: true, text: 'Efficiency / Level (%)', color: '#9ca3af' } } }) });
+            }
+
+            // --- Update and Event Handler Functions ---
+            function updateDebrisForecast(model) {
+                charts.debrisForecast.data.datasets[0].data = generateData.debrisForecast(model);
+                charts.debrisForecast.update();
+            }
+            
+            function updateHealthDashboard(satellite) {
+                const data = generateData.degradation(satellite);
+                document.getElementById('eol-date').textContent = data.eol;
+                charts.degradation.data.datasets[0].data = data.solar;
+                charts.degradation.data.datasets[1].data = data.battery;
+                charts.degradation.data.datasets[2].data = data.thruster;
+                charts.degradation.update();
+            }
+
+            function setupEventListeners() {
+                document.querySelector('#debris-forecast-filters').addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        document.querySelectorAll('#debris-forecast-filters button').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        updateDebrisForecast(e.target.dataset.model);
+                    }
+                });
+                document.getElementById('health-satellite-select').addEventListener('change', (e) => {
+                    updateHealthDashboard(e.target.value);
+                });
+            }
+
+            // --- Live Simulation Intervals ---
+            function startIntervals() {
+                intervals.push(setInterval(() => {
+                    if(charts.solarWind && charts.solarWind.data){
+                        const now = Date.now();
+                        const { speed, density } = generateData.solarWind();
+                        charts.solarWind.data.datasets[0].data.push({ x: now, y: speed });
+                        charts.solarWind.data.datasets[1].data.push({ x: now, y: density });
+                        if (charts.solarWind.data.datasets[0].data.length > 50) {
+                            charts.solarWind.data.datasets[0].data.shift();
+                            charts.solarWind.data.datasets[1].data.shift();
+                        }
+                        charts.solarWind.update('quiet');
+                    }
+                }, 2000));
+
+                intervals.push(setInterval(() => {
+                   if(charts.auroralPower && charts.auroralPower.data){
+                        const now = Date.now();
+                        charts.auroralPower.data.datasets[0].data.push({ x: now, y: generateData.auroralPower() });
+                        if (charts.auroralPower.data.datasets[0].data.length > 50) {
+                            charts.auroralPower.data.datasets[0].data.shift();
+                        }
+                        charts.auroralPower.update('quiet');
+                   }
+                }, 3000));
+            }
+
+            // --- Initialization ---
+            createSolarCharts();
+            createGeomagneticCharts();
+            createDebrisCharts();
+            createHealthCharts();
+            setupEventListeners();
+            updateHealthDashboard('TERRA-1'); // Initial load
+            startIntervals();
+        });
+    </script>
+</body>
+</html>

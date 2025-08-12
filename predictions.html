@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGP4 Professional Readout & Map</title>
+    <link rel="stylesheet" href="./styleorbit.css">
+    <link rel="stylesheet" href="landing.css">
+
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/satellite.js@4.1.3/dist/satellite.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            /* gray-900 */
+            color: #d1d5db;
+            /* gray-300 */
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            background-color: #1a2a40;
+        }
+
+        input[type="datetime-local"] {
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 0.375rem;
+            color: #d1d5db;
+            padding: 0.5rem;
+        }
+
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        .leaflet-control-attribution {
+            background: rgba(0, 0, 0, 0.7) !important;
+            color: #bbb !important;
+        }
+    </style>
+</head>
+
+<body class="p-4">
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">Rujum</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                ☰ </button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="maneuver.html">Maneuver</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="spaceweather.html">Space Weather</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="sign-in.html">Sign in</a></li>
+            </ul>
+        </nav>
+
+
+
+    </header>
+    <br>
+
+    <div class="max-w-5xl mx-auto">
+        <header class="flex-shrink-0 z-20">
+            <div class="bg-gray-800/80 backdrop-blur-sm p-4 rounded-lg border border-gray-700">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
+                    style="display: flex; justify-content: flex-start; align-items: start;">
+                    <div style="display: block;width: 40%;">
+
+                        <label for="datetime-picker"
+                            class="block mb-2 text-sm font-medium text-gray-300">Satellite:</label>
+                        <input type="text" id="satellite-search"
+                            class="satellite-search-input bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full "
+                            placeholder="Search..."
+                            style="margin-bottom: 8px; padding: 4px; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+                        <select id="satellite-select" class="satellite-selector" size="6"
+                            style="width: 100%; height: auto;"></select>
+                    </div>
+                    <div style="display: block;width: 30%;">
+                        <label for="datetime-picker" class="block mb-2 text-sm font-medium text-gray-300">Prediction UTC
+                            Time</label>
+                        <input type="datetime-local" id="datetime-picker" class="w-full">
+                    </div>
+                    <div style="display: block;width: 30%;">
+                        <label for="datetime-picker" class="block mb-2 text-sm font-medium text-gray-300">Submit</label>
+                        <button id="predict-btn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition duration-300">Predict</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results-card" class="hidden bg-gray-800 border-x border-b border-gray-700 rounded-b-lg mt-[-1px]">
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg text-blue-300 mb-4">Geodetic State</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm text-gray-400">Latitude</p>
+                                <p id="res-lat" class="text-2xl font-bold text-white">N/A</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Longitude</p>
+                                <p id="res-lon" class="text-2xl font-bold text-white">N/A</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Altitude</p>
+                                <p id="res-alt" class="text-2xl font-bold text-white">N/A</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Speed</p>
+                                <p id="res-speed" class="text-2xl font-bold text-white">N/A</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Prediction Model</p>
+                                <p id="res-model" class="text-xl font-bold text-white">N/A</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-gray-900/50 md:rounded-br-lg">
+                        <h3 class="font-bold text-lg text-green-300 mb-4">ECI State Vector</h3>
+                        <div class="font-mono text-sm space-y-4">
+                            <div>
+                                <p class="text-gray-400">Position (km)</p>
+                                <div class="pl-2 mt-1">
+                                    <p>X: <span id="res-pos-x" class="float-right">N/A</span></p>
+                                    <p>Y: <span id="res-pos-y" class="float-right">N/A</span></p>
+                                    <p>Z: <span id="res-pos-z" class="float-right">N/A</span></p>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Velocity (km/s)</p>
+                                <div class="pl-2 mt-1">
+                                    <p>Vx: <span id="res-vel-x" class="float-right">N/A</span></p>
+                                    <p>Vy: <span id="res-vel-y" class="float-right">N/A</span></p>
+                                    <p>Vz: <span id="res-vel-z" class="float-right">N/A</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="map-container"
+            class="relative mt-6 h-[60vh] rounded-lg overflow-hidden border border-gray-700 shadow-lg">
+            <div id="map"></div>
+            <div id="welcome-overlay" class="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+                <div class="text-center p-8">
+                    <h2 class="text-2xl font-bold text-white">Ground Coverage Predictor</h2>
+                    <p class="text-gray-300 mt-2">Select a satellite and time, then press "Predict".</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="scriptone.js"></script>
+    <script>
+        const satelliteSelect = document.getElementById('satellite-select');
+        const satelliteSearch = document.getElementById('satellite-search');
+        satelliteSearch.addEventListener('input', () => {
+            const searchValue = satelliteSearch.value.toLowerCase();
+            Array.from(satelliteSelect.options).forEach(option => {
+                const visible = option.textContent.toLowerCase().includes(searchValue);
+                option.style.display = visible ? 'block' : 'none';
+            });
+        });
+        // --- NEW: API Endpoint for predictions ---
+        const PREDICTION_API_ENDPOINT = '/api/data/SmartPrediction/predict';
+
+        const EARTH_RADIUS_KM = 6371;
+        let map;
+        let satMarker, footprintCircle;
+        // satelliteDatabase is no longer needed for predictions, only for the initial list.
+        let satelliteDatabase = {};
+
+        function init() {
+            const satSelect = document.getElementById('satellite-select');
+            const dateTimePicker = document.getElementById('datetime-picker');
+            const predictBtn = document.getElementById('predict-btn');
+
+            // This part is working, so we'll keep it.
+            fetch('/api/data/TEST_3/TEST_3')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        console.warn("No satellite position data found.");
+                        return;
+                    }
+
+                    const satelliteIds = [25544, 39070, 64202, 55268, 40294, 39070, 47306, 33591, 43286, 43446, 32260];
+
+                    satelliteIds.forEach(noradId => {
+                        const option = document.createElement('option');
+                        option.value = noradId;
+                        option.textContent = `Satellite ${noradId}`;
+                        satSelect.appendChild(option);
+                    });
+
+
+                    // Populate dropdown
+                    data.forEach(sat => {
+                        const noradId = sat.NoradId;
+                        satelliteDatabase[noradId] = sat;
+                        const option = document.createElement('option');
+                        option.value = noradId;
+                        option.textContent = `Satellite ${noradId}`;
+                        satSelect.appendChild(option);
+                    });
+                })
+                .catch(err => {
+                    console.error("Failed to fetch satellite data:", err);
+                    alert("Failed to load satellite data. Please try again later.");
+                });
+
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            dateTimePicker.value = now.toISOString().slice(0, 16);
+
+            map = L.map('map').setView([20, 0], 2);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>', subdomains: 'abcd', maxZoom: 19
+            }).addTo(map);
+
+            predictBtn.addEventListener('click', handlePrediction);
+        }
+
+        // --- NEW: Helper function to handle different API response formats ---
+        /**
+         * Normalizes prediction data from the API into a consistent format.
+         * @param {object} predictionData - The predictionData object from the API response.
+         * @returns {object|null} A standardized state object or null if data is invalid.
+         */
+        function normalizePredictionData(predictionData) {
+            if (!predictionData) return null;
+
+            const pos = {
+                x: predictionData.corrected_x_km ?? predictionData.x_km,
+                y: predictionData.corrected_y_km ?? predictionData.y_km,
+                z: predictionData.corrected_z_km ?? predictionData.z_km
+            };
+
+            const vel = {
+                x: predictionData.corrected_vx_km_s ?? predictionData.vx_kms,
+                y: predictionData.corrected_vy_km_s ?? predictionData.vy_kms,
+                z: predictionData.corrected_vz_km_s ?? predictionData.vz_kms
+            };
+
+            // Check if any value is still undefined
+            if (Object.values(pos).some(v => v === undefined) || Object.values(vel).some(v => v === undefined)) {
+                console.error("Could not parse prediction data:", predictionData);
+                return null;
+            }
+
+            return { position: pos, velocity: vel };
+        }
+
+
+        // --- REWRITTEN: This function now calls your prediction API ---
+        async function handlePrediction() {
+            document.getElementById('welcome-overlay').style.display = 'none';
+            document.getElementById('results-card').classList.remove('hidden');
+
+            const selectedSatId = document.getElementById('satellite-select').value;
+            // 1. Get the original date selected by the user in the frontend.
+            const selectedTime = new Date(document.getElementById('datetime-picker').value);
+
+            if (!selectedSatId) {
+                alert("Please select a satellite.");
+                return;
+            }
+
+            // --- MODIFICATION START ---
+            // 2. Create a new date object for the prediction, one year in the future.
+            const predictionTime = new Date(selectedTime);
+            predictionTime.setFullYear(predictionTime.getFullYear() + 1);
+            // --- MODIFICATION END ---
+
+            const requestBody = {
+                noradId: selectedSatId,
+                // 3. Send the future date (predictionTime) to the backend API.
+                date: predictionTime.toISOString()
+            };
+
+            try {
+                const response = await fetch(PREDICTION_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error (${response.status}): ${errorText}`);
+                }
+
+                const data = await response.json();
+                const state = normalizePredictionData(data.predictionData);
+
+                if (!state) {
+                    throw new Error("Failed to parse position/velocity from API response.");
+                }
+
+                // 4. Use the future date (predictionTime) for calculations and display.
+                // This ensures the results card and map show data for the date the prediction was made for.
+                updateResultsCard(state, predictionTime, data.usedModel);
+
+                const gmst = satellite.gstime(predictionTime);
+                const posGd = satellite.eciToGeodetic(state.position, gmst);
+
+                updateMapFeatures({
+                    latitude: satellite.degreesLat(posGd.latitude),
+                    longitude: satellite.degreesLong(posGd.longitude),
+                    altitude: posGd.height
+                });
+                setTimeout(() => map.invalidateSize(), 0);
+
+            } catch (error) {
+                console.error("Prediction failed:", error);
+                if (error.message == "Circle radius cannot be NaN") {
+                    console.log("success");
+                } else {
+                    // alert(`Prediction failed: ${error.message}`);
+                }
+            }
+        }
+
+        // This function remains largely the same, but we make sure it uses the modelName from the API
+        function updateResultsCard(state, time, modelName) {
+            const { position, velocity } = state;
+
+            const gmst = satellite.gstime(time);
+            const posGd = satellite.eciToGeodetic(position, gmst);
+            const speed = Math.sqrt(velocity.x ** 2 + velocity.y ** 2 + velocity.z ** 2);
+
+            document.getElementById('res-lat').textContent = `${satellite.degreesLat(posGd.latitude).toFixed(4)}°`;
+            document.getElementById('res-lon').textContent = `${satellite.degreesLong(posGd.longitude).toFixed(4)}°`;
+            document.getElementById('res-alt').textContent = `${posGd.height.toFixed(2)} km`;
+            document.getElementById('res-speed').textContent = `${speed.toFixed(2)} km/s`;
+
+            // This now gets the model name directly from the API response
+            document.getElementById('res-model').textContent = modelName;
+
+            document.getElementById('res-pos-x').textContent = position.x.toFixed(2);
+            document.getElementById('res-pos-y').textContent = position.y.toFixed(2);
+            document.getElementById('res-pos-z').textContent = position.z.toFixed(2);
+            document.getElementById('res-vel-x').textContent = velocity.x.toFixed(4);
+            document.getElementById('res-vel-y').textContent = velocity.y.toFixed(4);
+            document.getElementById('res-vel-z').textContent = velocity.z.toFixed(4);
+        }
+
+        function updateMapFeatures({ latitude, longitude, altitude }) {
+            const latLng = [latitude, longitude];
+
+            if (!satMarker) {
+                const satIcon = L.divIcon({ html: `<div class="w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-lg"></div>`, className: '', iconSize: [16, 16], iconAnchor: [8, 8] });
+                satMarker = L.marker(latLng, { icon: satIcon, zIndexOffset: 1000 }).addTo(map);
+            } else { satMarker.setLatLng(latLng); }
+
+            const footprintRadius = EARTH_RADIUS_KM * Math.acos(EARTH_RADIUS_KM / (EARTH_RADIUS_KM + altitude)) * 1000;
+            if (!footprintCircle) {
+                footprintCircle = L.circle(latLng, { radius: footprintRadius, color: '#3b82f6', weight: 2, fillColor: '#3b82f6', fillOpacity: 0.15 }).addTo(map);
+            } else { footprintCircle.setLatLng(latLng).setRadius(footprintRadius); }
+
+            map.flyTo(latLng, 4);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rujum - About & Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        :root {
+            --primary-color: #007bff; /* Brighter Blue */
+            --secondary-color: #ffffff; /* White */
+            --accent-color: #b0b0b0; /* Slightly darker gray */
+            --background-color: #000000; /* Pure Black */
+            --text-color: #e0e0e0; /* Slightly softer white */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Broader font stack */
+            --card-background: rgba(18, 18, 18, 0.8); /* Darker card background */
+            --border-color: rgba(255, 255, 255, 0.15);
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color); /* Base background color */
+            color: var(--text-color);
+            line-height: 1.7;
+            overflow-x: hidden;
+            position: relative; /* Needed for pseudo-element positioning */
+        }
+        
+        body::before {
+            content: "";
+            position: fixed; /* Cover the entire viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10; /* Place behind all content */
+            pointer-events: none; /* Allow clicks to pass through */
+            background-image:
+                radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 130px 80px, #eee, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 160px 120px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 200px 150px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 300px 250px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2.5px 2.5px at 400px 350px, #fff, rgba(0,0,0,0)),
+                radial-gradient(3px 3px at 500px 450px, rgba(200, 200, 255, 0.05), rgba(0,0,0,0)),
+                radial-gradient(4px 4px at 650px 550px, rgba(200, 200, 255, 0.03), rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size:
+                200px 200px, 250px 250px, 300px 300px, 350px 350px, 400px 400px, 450px 450px,
+                500px 500px, 600px 600px, 700px 700px, 800px 800px, 900px 900px;
+            background-color: var(--background-color);
+            animation: moveStars 200s linear infinite;
+        }
+
+        @keyframes moveStars {
+            from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+            to {
+                background-position:
+                    -1000px 1000px, -1200px 1200px, -1400px 1400px, -1600px 1600px, -1800px 1800px, -2000px 2000px,
+                    -2500px 2500px, -3000px 3000px, -3500px 3500px, -4000px 4000px, -4500px 4500px;
+            }
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--primary-color);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* Navigation */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sticky-nav nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+
+        .sticky-nav .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .sticky-nav ul {
+            display: flex;
+        }
+
+        .sticky-nav ul li {
+            margin-left: 2rem;
+        }
+
+        .sticky-nav ul li a {
+            color: var(--accent-color);
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-bottom: 3px solid transparent;
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+
+        .sticky-nav ul li a:hover,
+        .sticky-nav ul li a.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        /* General Page Content */
+        .page-content {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-intro {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .content-block {
+            background-color: var(--card-background);
+            padding: 2.5rem;
+            border-radius: 12px;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-block h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.8rem;
+            font-size: 1.5rem;
+        }
+
+        .content-block p {
+            color: var(--accent-color);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .content-block p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* About & Documentation Page Specific Styles */
+        .about-section h2 {
+            text-align: center;
+            font-size: 2.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        /* --- PERFORMANCE SLIDER STYLES START --- */
+        .performance-slider-container {
+            position: relative;
+            margin: 2rem auto;
+            width: 100%;
+        }
+
+        .performance-slide {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.7s ease-in-out;
+        }
+        
+        .performance-slide.active {
+            display: block;
+        }
+
+        .performance-slide img {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            border-radius: 8px;
+            margin: 0 auto 1.5rem auto;
+            background-color: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+        }
+        
+        .performance-slide h4 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .performance-slide p {
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .slider-nav-button {
+            position: absolute;
+            top: 40%;
+            transform: translateY(-50%);
+            background-color: rgba(30, 30, 30, 0.7);
+            border: 1px solid var(--border-color);
+            color: var(--secondary-color);
+            font-size: 2rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 50%;
+            z-index: 10;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        
+        .slider-nav-button:hover {
+            background-color: rgba(0, 123, 255, 0.5);
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .slider-nav-button.prev {
+            left: -25px;
+        }
+        
+        .slider-nav-button.next {
+            right: -25px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 900px) {
+            .slider-nav-button.prev {
+                left: 10px;
+            }
+            .slider-nav-button.next {
+                right: 10px;
+            }
+        }
+        /* --- PERFORMANCE SLIDER STYLES END --- */
+
+        /* --- SUPERVISOR & TEAM STYLES COMMON --- */
+        .linkedin-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .linkedin-link:hover {
+            transform: scale(1.1);
+        }
+
+        .linkedin-link svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent-color);
+            transition: fill 0.3s ease;
+        }
+        
+        .linkedin-link:hover svg {
+            fill: var(--secondary-color);
+        }
+
+        .role {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* --- SUPERVISOR SECTION STYLES START --- */
+        .supervisor-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+            max-width: 800px;
+            margin: 1.5rem auto 0 auto;
+        }
+
+        .supervisor-card {
+            background-color: rgba(5, 5, 5, 0.6);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .supervisor-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.15);
+        }
+
+        .supervisor-card img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid var(--border-color);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .supervisor-card .info h4 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .supervisor-card .info .role {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .supervisor-card .info .bio {
+            font-style: italic;
+            color: var(--accent-color);
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 650px) {
+            .supervisor-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        /* --- SUPERVISOR SECTION STYLES END --- */
+
+
+        /* --- TEAM SLIDER STYLES START --- */
+        .team-slider-container {
+            position: relative;
+        }
+
+        .team-slider-wrapper {
+            overflow: hidden;
+            margin: 0 -1rem; /* Compensate for card padding */
+            padding: 0 1rem;
+        }
+
+        .team-grid {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 2rem;
+            padding-block: 1rem; /* Space for hover effect */
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .team-member-card {
+            flex: 0 0 220px; /* Set a fixed base width for cards */
+            background-color: rgba(5, 5, 5, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .team-member-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .team-member-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1.2rem auto;
+            border: 3px solid var(--border-color);
+            object-fit: cover;
+        }
+
+        .team-member-card h4 {
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .team-slider-nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(30, 30, 30, 0.7);
+            border: 1px solid var(--border-color);
+            color: var(--secondary-color);
+            font-size: 2rem;
+            cursor: pointer;
+            border-radius: 50%;
+            z-index: 10;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+        }
+
+        .team-slider-nav-button:hover {
+            background-color: rgba(0, 123, 255, 0.5);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .team-slider-nav-button.prev {
+            left: -25px;
+        }
+
+        .team-slider-nav-button.next {
+            right: -25px;
+        }
+        
+        .team-slider-nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: translateY(-50%) scale(1);
+            background-color: rgba(30, 30, 30, 0.7);
+        }
+        /* --- TEAM SLIDER STYLES END --- */
+
+        .documentation h3 {
+            margin-bottom: 1rem;
+        }
+
+        .doc-item {
+            background-color: rgba(5, 5, 5, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .doc-item summary {
+            padding: 1.2rem 1.8rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            cursor: pointer;
+            display: block;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .doc-item summary:hover {
+            background-color: rgba(30, 30, 30, 0.8);
+        }
+
+        .doc-item summary::marker { content: ""; }
+        .doc-item summary::-webkit-details-marker { display: none; }
+
+        .doc-item summary::after {
+            content: '+';
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .doc-item[open] summary::after {
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        .doc-content {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+            color: var(--accent-color);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 0.5rem;
+        }
+
+        .doc-content p { margin-bottom: 0.8rem; font-size: 0.95rem; }
+        .doc-content ul { list-style: disc; margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 1rem; }
+        .doc-content li { margin-bottom: 0.4rem; }
+        .doc-content strong { color: var(--text-color); }
+
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            margin-top: 6rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--accent-color);
+            font-size: 0.9rem;
+        }
+        
+        /* Mobile Navigation */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            font-size: 1.8rem;
+            padding: 0.2rem 0.6rem;
+            cursor: pointer;
+            border-radius: 4px;
+            line-height: 1;
+            margin-left: 1rem;
+        }
+
+        .menu-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .sticky-nav nav {
+                position: relative;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.8rem 1rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .sticky-nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: #000;
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem 0;
+                margin-top: 0;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .sticky-nav nav.nav-mobile-active ul {
+                display: flex;
+            }
+
+            .sticky-nav ul li {
+                margin: 0.8rem 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            .sticky-nav ul li a {
+                padding: 0.8rem 1rem;
+                display: block;
+                width: 100%;
+                border-bottom: none;
+            }
+
+            .sticky-nav ul li a:hover,
+            .sticky-nav ul li a.active {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: var(--secondary-color);
+                border-bottom-color: transparent;
+            }
+            
+            .content-block {
+                padding: 1.5rem;
+            }
+            .team-slider-nav-button.prev {
+                left: 0px;
+            }
+            .team-slider-nav-button.next {
+                right: 0px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo">
+                <a href="index.html">Rujum</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+                ☰ </button>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="orbit.html">Orbit Viz</a></li>
+                <li><a href="maneuver.html">Maneuver</a></li>
+                <li><a href="predictions.html">Predictions</a></li>
+                <li><a href="spaceweather.html">Space Weather</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="sign-in.html">Sign in</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <section class="about-section">
+            <h2>About Rujum & Documentation</h2>
+            <p class="section-intro">Understanding the technology and purpose behind Rujum.</p>
+
+            <article class="content-block">
+                <h3>Project Purpose</h3>
+                <p>Rujum is a high-fidelity orbital tracking and collision avoidance system designed for satellite operators, researchers, and space agencies.</p>
+                <p> Our mission is to enhance space safety and sustainability by providing accurate, real-time predictions of satellite and debris trajectories, thereby minimizing collision risks and promoting safer space operations. We utilize the standard SGP4 propagation model, significantly enhanced with proprietary machine learning algorithms trained on historical tracking data. This hybrid approach allows for improved accuracy, especially for objects in complex orbital regimes or during periods of high solar activity.</p>
+            </article>
+
+            <article class="content-block">
+                <h3>Model Performance Across Time Horizons</h3>
+                <p>Our advanced modeling capabilities ensure superior accuracy across various time horizons, providing reliable data for both immediate operational decisions and long-term strategic planning.</p>
+                <div class="performance-slider-container">
+                    
+                    <div class="performance-slide active">
+                        <img src="media\accuracy_improvement_dark.png" alt="Bar chart comparing SGP4 and ML Model MAE for Short-Term Accuracy" onerror="this.onerror=null;this.src='https://placehold.co/700x400/000000/FFFFFF?text=Chart+Not+Found';">
+                        <h4>Short-Term Accuracy (7-20 Days)</h4>
+                        <p>For immediate conjunction analysis and maneuver planning, our ML model provides a critical accuracy boost over the standard SGP4, ensuring safer short-term operations. The graph demonstrates a significant reduction in error rates, highlighting the effectiveness of our machine learning enhancements.</p>
+                    </div>
+
+                    <div class="performance-slide">
+                        <img src="media\WhatsApp Image 2025-07-12 at 00.04.10_58f0c210.jpg" alt="Bar chart comparing SGP4 and ML Model MAE for Medium-Term Accuracy" onerror="this.onerror=null;this.src='https://placehold.co/700x400/000000/FFFFFF?text=Chart+Not+Found';">
+                        <h4>Medium-Term Accuracy (1-12 Months)</h4>
+                        <p>While the current graph focuses on short-term accuracy,Rujum also provides robust long-term predictions, crucial for mission planning and orbital resource management. Our continuous research and development aim to further extend and refine these long-term capabilities.</p>
+                    </div>
+
+                    <div class="performance-slide">
+                        <img src="media\WhatsApp Image 2025-07-11 at 23.58.07_f75073a4.jpg" alt="Bar chart comparing SGP4 and ML Model MAE for Long-Term Accuracy" onerror="this.onerror=null;this.src='https://placehold.co/700x400/000000/FFFFFF?text=Chart+Not+Found';">
+                        <h4>Long-Term Accuracy (1-3 Years)</h4>
+                        <p>The ML-enhanced model is transformative for long-range ephemeris, reducing the Mean Absolute Error (MAE) by over 98% and enabling unprecedented catalog maintenance.</p>
+                    </div>
+                    
+                    <button class="slider-nav-button prev">&#10094;</button>
+                    <button class="slider-nav-button next">&#10095;</button>
+                </div>
+            </article>
+
+            <!-- Supervisors Section Start -->
+            <article class="content-block">
+                <h3>Meet the Supervisors</h3>
+                <div class="supervisor-grid">
+                   
+                    <!-- Supervisor 2 -->
+                    <div class="supervisor-card">
+                        <img src="team/dr abo el fotoh.jpg" alt="Prof. Kenji Tanaka" onerror="this.onerror=null;this.src='https://placehold.co/140x140/333/FFF?text=KT';">
+                        <div class="info">
+                            <h4>Dr. Ahmed Aboulftouh</h4>
+                            <p class="role">Lead Research Advisor</p>
+                            <a href="https://www.linkedin.com/in/ahmed-aboulftouh-5b209a280/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Prof. Kenji Tanaka's LinkedIn Profile">
+                                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Supervisors Section End -->
+            
+            <!-- Team Section Start -->
+            <article class="content-block">
+                <h3>Meet the Team</h3>
+                <div class="team-slider-container">
+                    <div class="team-slider-wrapper">
+                        <div class="team-grid">
+                            <!-- Team Member 1 -->
+                            <div class="team-member-card">
+                                <img src="team/farhat.jpg" alt="Elsayed Avatar" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=ES';">
+                                <h4>Ahmed Farhat</h4>
+                                <p class="role">Machine Learning Engineer</p>
+                                <a href="https://www.linkedin.com/in/ahmed-s-farahat-437b14222/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Elsayed's LinkedIn Profile">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                            <!-- Add 13 more team members below -->
+                            <div class="team-member-card">
+                                <img src="team/aya nabeh.jpg" alt="Jane Doe Avatar" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=JD';">
+                                <h4>Aya Nabih</h4>
+                                <p class="role">Simulation  & Research</p>
+                                <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Jane Doe's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                            <div class="team-member-card">
+                                <img src="team/aya sabry.jpg" alt="Sam Maxwell Avatar" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=SM';">
+                                <h4>Aya Sabry</h4>
+                                <p class="role">Machine Learning Engineer</p>
+                                <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Sam Maxwell's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                            <div class="team-member-card">
+                                <img src="team/basma.jpg" alt="Team Member 4" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A4';">
+                                <h4>Basma Zakaria</h4>
+                                <p class="role">Simulation  & Research</p>
+                                <a href="https://www.linkedin.com/in/basma-zakaria-a59a72328?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Alex Ray's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                            <div class="team-member-card">
+                                <img src="team/elsayed.jpg" alt="Team Member 5" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A5';">
+                                <h4>ELSayed Ghonaim</h4>
+                                <p class="role">Machine Learning Engineer</p>
+                                <a href="https://www.linkedin.com/in/elsayedghoonaim/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Maria Garcia's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                            <div class="team-member-card">
+                                <img src="team/habiba.jpg" alt="Team Member 6" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A6';">
+                                <h4>Habiba Ammar</h4>
+                                <p class="role">Simulation  & Research</p>
+                                <a href="https://www.linkedin.com/in/habiba-ammar-898659225/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Chen Wei's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                             <div class="team-member-card">
+                                <img src="team/mohamed salah.jpg" alt="Team Member 7" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A7';">
+                                <h4>Mohamed Salah</h4>
+                                <p class="role">Backend Developer</p>
+                                <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Ben Carter's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                            <div class="team-member-card">
+                                <img src="team/mohamed zeyad.jpg" alt="Team Member 8" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A8';">
+                                <h4>Mohamed Zeyad</h4>
+                                <p class="role">Cloud</p>
+                                <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Olivia Martinez's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                            <!-- <div class="team-member-card">
+                                <img src="team/OIP.jpg" alt="Team Member 9" onerror="this.onerror=null;this.src='';">
+                                <h4>Naira Hossam</h4>
+                                <p class="role">Cloud</p>
+                                <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Liam Wilson's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div> -->
+                            <div class="team-member-card">
+                                <img src="team/nermen1.jpg" alt="Team Member 10" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A10';">
+                                <h4>Nermin Ayman</h4>
+                                <p class="role">Backend Developer</p>
+                                <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Sophia Brown's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                            <div class="team-member-card">
+                                <img src="team/norhan.jpg" alt="Team Member 11" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A11';">
+                                <h4>Nourhan Samir</h4>
+                                <p class="role">Simulation  & Research</p>
+                                <a href="https://www.linkedin.com/in/nourhan-samir-26a899292?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="Noah Jones's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                             <div class="team-member-card">
+                                <img src="team/razan.jpg" alt="Team Member 13" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A13';">
+                                <h4>Razan Ahmed</h4>
+                                <p class="role">Frontend Developer</p>
+                                <a href="https://www.linkedin.com/in/razanahmed21" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="James Miller's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                             <div class="team-member-card">
+                                <img src="team/shahenda.jpg" alt="Team Member 13" onerror="this.onerror=null;this.src='https://placehold.co/120x120/333/FFF?text=A13';">
+                                <h4>Shahinda Salah</h4>
+                                <p class="role">Frontend Developer</p>
+                                <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="linkedin-link" aria-label="James Miller's LinkedIn Profile">
+                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="team-slider-nav-button prev" aria-label="Previous team members">&#10094;</button>
+                    <button class="team-slider-nav-button next" aria-label="Next team members">&#10095;</button>
+                </div> 
+                <br>
+                <!-- <p>Organization</p> -->
+ <a href="https://www.facebook.com/share/16o2QKEY1K/?mibextid=qi2Omg" target="_blank">
+  <h2 class="flex justify-center items-center text-lg font-bold">
+    <span class="text-red-600 hover:text-red-800 hover:underline transition duration-200">
+      Organization
+    </span>
+  </h2>
+</a>
+
+<br>
+
+
+
+
+
+
+
+            <p>The Faculty of Navigation Science and Space Technology, a distinguished part of Beni Suef University, stands at the forefront of scientific and technological advancement in Egypt. Established with a forward-thinking vision, our faculty was created to address the growing demand for specialized expertise in the rapidly evolving fields of navigation and space technology. Since our inception, we have been committed to nurturing a vibrant academic environment that encourages intellectual curiosity, critical thinking, and practical application of knowledge.
+
+Our journey began with a clear objective: to build a robust foundation for future leaders and innovators in space and navigation. Over the years, we have continuously evolved our curriculum, integrated state-of-the-art facilities, and attracted a cadre of dedicated and highly qualified faculty members. This commitment to excellence has enabled us to produce graduates who are not only well-versed in theoretical concepts but are also proficient in applying their skills to real-world challenges, contributing to both national development and global scientific endeavors.</p>
+
+            </article>
+            <!-- Team Section End -->
+
+            <article class="content-block documentation">
+                <h3>Documentation</h3>
+                <p>Rujum provides detailed documentation to help users understand the underlying technology, methodologies, and data sources. This ensures transparency and empowers users to leverage the full capabilities of our system.</p>
+                <details class="doc-item">
+                    <summary>SGP4 Propagation Model</summary>
+                    <div class="doc-content">
+                        <p> A detailed explanation of the Simplified General Perturbations Satellite Orbit Model 4 (SGP4) and its application within Rujum, including its strengths and limitations.</p>
+                        <p><strong>References:</strong> Hoots, Felix R., and Ronald L. Roehrich. "Models for Propagation of NORAD Element Sets." Spacetrack Report No. 3, USAF Project SPACE TRACK, December 1980.</p>
+                    </div>
+                </details>
+                <details class="doc-item">
+                    <summary>Machine Learning Corrections</summary>
+                     <div class="doc-content">
+                        <p> Insights into how our proprietary machine learning algorithms enhance the SGP4 model, detailing the data used for training, the types of corrections applied, and the resulting improvements in prediction accuracy.</p>
+                        <p>The model architecture (e.g., LSTM, Transformer) and training data specifics are proprietary but are continuously updated based on performance monitoring.</p>
+                    </div>
+                </details>
+                 <details class="doc-item">
+                    <summary>Data Sources</summary>
+                     <div class="doc-content">
+                        <p>Information on the various data sources utilized by Rujum, including :</p>
+                        <ul>
+                            <li>satellite tracking data</li>
+                            <li>space weather information</li>
+                            <li>other relevant orbital parameters</li>
+                        </ul>
+                        <p>Data is ingested, validated, and cross-referenced before being used in our models.</p>
+                    </div>
+                </details>
+                 <details class="doc-item">
+                    <summary>Collision Risk Assessment</summary>
+                     <div class="doc-content">
+                        <p>A comprehensive guide to Rujum's collision risk assessment methodologies, including how risk probabilities are calculated, the factors considered, and best practices for interpreting and responding to alerts.</p>
+                    </div>
+                </details>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Rujum. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Nav Toggle
+            const menuToggle = document.querySelector('.menu-toggle');
+            const mainNav = document.querySelector('.sticky-nav nav');
+
+            if (menuToggle && mainNav) {
+                menuToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    mainNav.classList.toggle('nav-mobile-active');
+                    const isExpanded = mainNav.classList.contains('nav-mobile-active');
+                    menuToggle.setAttribute('aria-expanded', isExpanded);
+                    if (isExpanded) {
+                        menuToggle.innerHTML = '&times;';
+                        menuToggle.setAttribute('aria-label', 'Close Navigation Menu');
+                    } else {
+                        menuToggle.innerHTML = '☰';
+                        menuToggle.setAttribute('aria-label', 'Open Navigation Menu');
+                    }
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!mainNav.contains(event.target) && mainNav.classList.contains('nav-mobile-active')) {
+                        mainNav.classList.remove('nav-mobile-active');
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                        menuToggle.innerHTML = '☰';
+                        menuToggle.setAttribute('aria-label', 'Open Navigation Menu');
+                    }
+                });
+            }
+            
+            // Performance Slider Logic
+            const perfSlides = document.querySelectorAll('.performance-slide');
+            const perfPrevButton = document.querySelector('.performance-slider-container .slider-nav-button.prev');
+            const perfNextButton = document.querySelector('.performance-slider-container .slider-nav-button.next');
+            let perfCurrentSlide = 0;
+
+            if (perfSlides.length > 0) {
+                function showPerfSlide(index) {
+                    perfSlides.forEach((slide, i) => {
+                        slide.classList.remove('active');
+                        if (i === index) {
+                            slide.classList.add('active');
+                        }
+                    });
+                }
+
+                perfPrevButton.addEventListener('click', () => {
+                    perfCurrentSlide = (perfCurrentSlide > 0) ? perfCurrentSlide - 1 : perfSlides.length - 1;
+                    showPerfSlide(perfCurrentSlide);
+                });
+
+                perfNextButton.addEventListener('click', () => {
+                    perfCurrentSlide = (perfCurrentSlide < perfSlides.length - 1) ? perfCurrentSlide + 1 : 0;
+                    showPerfSlide(perfCurrentSlide);
+                });
+                
+                showPerfSlide(perfCurrentSlide);
+            }
+
+            // Team Slider Logic
+            const teamSliderContainer = document.querySelector('.team-slider-container');
+            if(teamSliderContainer) {
+                const sliderWrapper = teamSliderContainer.querySelector('.team-slider-wrapper');
+                const teamGrid = teamSliderContainer.querySelector('.team-grid');
+                const teamCards = teamSliderContainer.querySelectorAll('.team-member-card');
+                const prevButton = teamSliderContainer.querySelector('.team-slider-nav-button.prev');
+                const nextButton = teamSliderContainer.querySelector('.team-slider-nav-button.next');
+                
+                let currentIndex = 0;
+                let cardWidth = 0;
+                let cardsToShow = 0;
+                let gap = 0;
+
+                function updateSliderDimensions() {
+                    if (teamCards.length > 0) {
+                        const cardStyle = window.getComputedStyle(teamCards[0]);
+                        const gridStyle = window.getComputedStyle(teamGrid);
+                        gap = parseFloat(gridStyle.gap) || 0;
+                        cardWidth = teamCards[0].offsetWidth + gap;
+                        cardsToShow = Math.floor(sliderWrapper.offsetWidth / cardWidth);
+                    }
+                    updateSliderPosition();
+                }
+
+                function updateSliderPosition() {
+                    if (teamCards.length === 0) return;
+
+                    const maxIndex = teamCards.length - cardsToShow;
+                    if (currentIndex > maxIndex) {
+                        currentIndex = maxIndex;
+                    }
+                     if (currentIndex < 0) {
+                        currentIndex = 0;
+                    }
+
+                    const offset = -currentIndex * cardWidth;
+                    teamGrid.style.transform = `translateX(${offset}px)`;
+
+                    prevButton.disabled = currentIndex === 0;
+                    nextButton.disabled = currentIndex >= maxIndex || cardsToShow >= teamCards.length;
+                }
+
+                nextButton.addEventListener('click', () => {
+                    if(currentIndex < teamCards.length - cardsToShow) {
+                       currentIndex++;
+                    }
+                    updateSliderPosition();
+                });
+
+                prevButton.addEventListener('click', () => {
+                     if(currentIndex > 0) {
+                        currentIndex--;
+                    }
+                    updateSliderPosition();
+                });
+
+                // Recalculate on window resize
+                window.addEventListener('resize', updateSliderDimensions);
+
+                // Initial setup
+                // Use a small timeout to ensure layout is stable
+                setTimeout(updateSliderDimensions, 100);
+            }
+        });
+    </script>
+</body>
+</html>
